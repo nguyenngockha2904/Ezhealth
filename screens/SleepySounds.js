@@ -3,16 +3,32 @@ import { StyleSheet, Text, View, Image, FlatList } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import sleepy from '../temp/TempSleepySounds';
 import SoundsList from '../components/SoundsList';
+import SoundsListNight from '../components/SoundsListNight';
+import SoundsListDaytime from '../components/SoundsListDaytime';
+import Colors from '../shared/Colors';
 
-const rain = sleepy.filter(item => item.type == 'rain');
 const nature = sleepy.filter(item => item.type == 'nature');
-const animals = sleepy.filter(item => item.type == 'animals');
+const rain = sleepy.filter(item => item.type == 'rain');
+const daytime = sleepy.filter(item => item.type == 'daytime');
+const nights = sleepy.filter(item => item.type == 'nights');
 
 export default class SleepySounds extends Component {
 
     renderSoundsList = item => {
         return (
             <SoundsList item={item} />
+        );
+    }
+
+    renderSoundsListNight = item => {
+        return (
+            <SoundsListNight item={item} />
+        );
+    }
+
+    renderSoundsListDaytime = item => {
+        return (
+            <SoundsListDaytime item={item} />
         );
     }
 
@@ -23,10 +39,13 @@ export default class SleepySounds extends Component {
                     showsHorizontalScrollIndicator={false}
                     showsVerticalScrollIndicator={false}
                 >
-                    {/* Rain */}
-                    <View style={[styles.body, { paddingTop: 310 }]}>
+                    <Image
+                        style={styles.headerImage}
+                        source={require('../assets/backgrounds/header.png')} />
+                    {/* Nights */}
+                    <View style={[styles.body, { paddingTop: 0 }]}>
                         <View style={styles.bodyTitle}>
-                            <Text style={styles.titleBodyText}>Rain</Text>
+                            <Text style={[styles.titleBodyText, { color: '#FFFFFF' }]}>Nights</Text>
                         </View>
 
                         <View style={styles.bodyContent}>
@@ -34,19 +53,51 @@ export default class SleepySounds extends Component {
 
                                 flexDirection={'column'}
                                 horizontal={true}
-                                style={styles.flatlistBoby}
-                                data={rain}
+                                style={[styles.flatlistBoby,
+                                {
+                                    backgroundColor: Colors.white,
+                                    borderTopLeftRadius: 15,
+                                    borderBottomLeftRadius: 15
+                                }]}
+                                data={nights}
                                 contentContainerStyle={{ paddingHorizontal: 0, paddingVertical: 0 }}
                                 showsHorizontalScrollIndicator={false}
                                 showsVerticalScrollIndicator={false}
-                                renderItem={({ item }) => (this.renderSoundsList(item))}
+                                renderItem={({ item }) => (this.renderSoundsListNight(item))}
+                                keyExtractor={item => item.id.toString()}
+                            />
+                        </View>
+                    </View>
+                    {/* Daytime */}
+                    <View style={[styles.body, { paddingTop: 0 }]}>
+                        <View style={styles.bodyTitle}>
+                            <Text style={[styles.titleBodyText, { color: '#F9C34E' }]}>Daytime</Text>
+                        </View>
+
+                        <View style={styles.bodyContent}>
+                            <FlatList
+
+                                flexDirection={'column'}
+                                horizontal={true}
+                                style={[styles.flatlistBoby,
+                                {
+                                    backgroundColor: '#C56775',
+                                    borderTopLeftRadius: 15,
+                                    borderBottomLeftRadius: 15
+                                }]}
+                                data={daytime}
+                                contentContainerStyle={{ paddingHorizontal: 0, paddingVertical: 0 }}
+                                showsHorizontalScrollIndicator={false}
+                                showsVerticalScrollIndicator={false}
+                                renderItem={({ item }) => (this.renderSoundsListDaytime(item))}
                                 keyExtractor={item => item.id.toString()}
                             />
                         </View>
                     </View>
 
+
                     {/* Nature */}
-                    <View style={styles.body}>
+                    <View style={[styles.body, { paddingTop: 10 }]}>
                         <View style={styles.bodyTitle}>
                             <Text style={styles.titleBodyText}>Nature</Text>
                         </View>
@@ -55,8 +106,9 @@ export default class SleepySounds extends Component {
                             <FlatList
 
                                 flexDirection={'column'}
-                                horizontal={true}
-                                style={styles.flatlistBoby}
+                                horizontal={false}
+                                numColumns={3}
+                                style={[styles.flatlistBoby]}
                                 data={nature}
                                 contentContainerStyle={{ paddingHorizontal: 0, paddingVertical: 0 }}
                                 showsHorizontalScrollIndicator={false}
@@ -67,19 +119,20 @@ export default class SleepySounds extends Component {
                         </View>
                     </View>
 
-                    {/* Animals */}
-                    <View style={styles.body}>
+                    {/* Rain */}
+                    <View style={[styles.body, { paddingTop: 10 }]}>
                         <View style={styles.bodyTitle}>
-                            <Text style={styles.titleBodyText}>Animals</Text>
+                            <Text style={styles.titleBodyText}>Rain</Text>
                         </View>
 
                         <View style={styles.bodyContent}>
                             <FlatList
 
                                 flexDirection={'column'}
-                                horizontal={true}
-                                style={styles.flatlistBoby}
-                                data={animals}
+                                horizontal={false}
+                                numColumns={3}
+                                style={[styles.flatlistBoby]}
+                                data={rain}
                                 contentContainerStyle={{ paddingHorizontal: 0, paddingVertical: 0 }}
                                 showsHorizontalScrollIndicator={false}
                                 showsVerticalScrollIndicator={false}
@@ -88,12 +141,8 @@ export default class SleepySounds extends Component {
                             />
                         </View>
                     </View>
-
                     {/* End tag */}
                 </ScrollView>
-                <Image
-                    style={styles.headerImage}
-                    source={require('../assets/backgrounds/header_trans.png')} />
             </View>
         )
     }
@@ -106,12 +155,19 @@ const styles = StyleSheet.create({
         backgroundColor: '#35393f',
     },
     headerImage: {
-        position: 'absolute',
         width: '100%',
         height: 310,
     },
     flatlistBoby: {
 
+    },
+    titleBodySubText: {
+        color: '#7DC481',
+        flex: 1,
+        alignSelf: 'center',
+        fontFamily: 'quicksand-bold',
+        fontSize: 10,
+        paddingTop: 10
     },
     titleBodyText: {
         color: '#7DC481',
@@ -137,6 +193,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         height: '100%',
-        paddingBottom: 0,
+        paddingBottom: 30,
     },
 });

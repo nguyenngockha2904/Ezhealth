@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { StyleSheet, View, Text, Image, TouchableOpacity, Alert } from 'react-native';
 import ProgressCircle from 'react-native-progress-circle';
 import { AntDesign } from '@expo/vector-icons';
-
+import * as Speech from 'expo-speech';
 export default class StartFit extends Component {
     state = {
         color: this.props.navigation.getParam('color'),
@@ -11,13 +11,26 @@ export default class StartFit extends Component {
         image: this.props.navigation.getParam('ready'),
         completed: false,
         title: 'READY TO START',
-        timerStart: 3,
-        timer: 3,
+        next: '',
+        timerStart: 10,
+        timer: 10,
         titileButton: 'START',
         i: 0,
     }
-
+    onSpeak =(text) =>{
+        Speech.speak(text,{
+            language:'en',
+            pitch:1,
+            rate:1
+        });
+    }
     startFit = () => {
+        if(this.state.title==='READY TO START'||this.state.title==='REST 10 SECONDS')
+        {
+            this.onSpeak(this.state.title);
+        }else {
+            this.onSpeak('START '+this.state.title);
+        }
         this.interval = setInterval(
             () => {
                 this.setState((prevState) => ({ timer: prevState.timer - 1 }));
@@ -36,7 +49,9 @@ export default class StartFit extends Component {
                 timer: this.state.todos[this.state.i].timer,
                 i: this.state.i + 1,
             });
+           
         }
+        this.onSpeak('START '+this.state.todos[this.state.i].title);
     }
 
     buttonClick = () => {
@@ -45,6 +60,7 @@ export default class StartFit extends Component {
             this.startFit();
         }
         else if (this.state.titileButton === 'PAUSE') {
+            this.onSpeak('PAUSE '+this.state.title);
             this.setState({ titileButton: 'START' });
             clearInterval(this.interval);
         }
@@ -52,18 +68,34 @@ export default class StartFit extends Component {
 
 
     componentDidUpdate() {
+        if(this.state.timer === 15){
+            this.onSpeak('HAlF OF TIME');
+        }
+        if(this.state.timer === 1 && this.state.titileButton==='PAUSE'){
+            this.onSpeak('1');
+        }else if(this.state.timer === 2&& this.state.titileButton==='PAUSE'){
+            this.onSpeak('2');
+        }else if(this.state.timer === 3&& this.state.titileButton==='PAUSE'){
+            this.onSpeak('3');
+        }
         if (this.state.timer === 0) {
             if (this.state.title === 'READY TO START') {
                 this.startNewFit();
             } else if (this.state.title === 'REST 10 SECONDS') {
                 this.startNewFit();
+                this.setState({
+
+                    next: '',
+                });
             } else if (this.state.i < this.state.count) {
                 this.setState({
                     timerStart: 10,
                     timer: 10,
-                    title: this.state.todos[this.state.i].title,
+                    image: this.state.todos[this.state.i].image,
                     title: 'REST 10 SECONDS',
+                    next: 'NEXT: '+ this.state.todos[this.state.i].title,
                 });
+                this.onSpeak('Rest 10 SECONDS');
             }
             else {
                 clearInterval(this.interval);
@@ -135,6 +167,7 @@ export default class StartFit extends Component {
                 </View>
                 <View style={styles.bodyContainer}>
                     <Text style={styles.buttonText}>{this.state.title}</Text>
+                    <Text style={styles.buttonText}>{this.state.next}</Text>
                     <Image
                         style={{ width: '80%', height: '70%' }}
                         source={this.state.image}

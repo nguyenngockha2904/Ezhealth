@@ -5,7 +5,6 @@ import colors from '../shared/Colors';
 import firebaseApp from '../Fire';
 import 'firebase/firestore';
 import challenges from '../temp/TempChallenges';
-import active from '../temp/TempActive';
 import infomations from '../temp/TempInfomations';
 
 
@@ -43,13 +42,11 @@ export default class Register extends Component {
             }
             else {
                 doc.set({
-                    active: active,
                     challenges: challenges,
                     infomations: infomations,
                 })
             }
         });
-
     }
 
     sendEmailVerifycation = () => {
@@ -71,7 +68,6 @@ export default class Register extends Component {
     }
 
     gotoLogIn = () => {
-        this.checkFirebase();
         this.props.navigation.replace('Login', {
             email: this.state.email
         });
@@ -91,7 +87,7 @@ export default class Register extends Component {
                                 'Notification',
                                 'Created a new account with email ' + this.state.email,
                                 [
-                                    { text: 'OK', onPress: () => { this.gotoLogIn(), this.sendEmailVerifycation() } },
+                                    { text: 'OK', onPress: () => { this.sendEmailVerifycation(), this.checkFirebase(), this.gotoLogIn()} },
                                 ],
                                 { cancelable: false }
                             );

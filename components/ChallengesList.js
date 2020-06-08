@@ -88,7 +88,8 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: colors.black,
         fontFamily: 'quicksand-regular',
-        alignSelf: 'center',
+        alignSelf: 'flex-end',
         padding: 20,
+        paddingBottom: 10,
     }
 });

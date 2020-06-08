@@ -69,7 +69,7 @@ export const fitness = [
             },
             {
                 id: 3,
-                title: 'PUSH-UPS',
+                title: 'PUSH UP',
                 completed: true,
                 link: '',
                 image: require('../assets/images/fitness/gif/classic/classic-3.gif'),
@@ -117,7 +117,7 @@ export const fitness = [
             },
             {
                 id: 5,
-                title: 'STEP-UP ONTO CHAIR',
+                title: 'STEP UP ONTO CHAIR',
                 completed: true,
                 link: '',
                 image: require('../assets/images/fitness/gif/classic/classic-5.gif'),
@@ -261,7 +261,7 @@ export const fitness = [
             },
             {
                 id: 11,
-                title: 'PUSH-UP & ROTATION',
+                title: 'PUSH UP & ROTATION',
                 completed: false,
                 link: '',
                 image: require('../assets/images/fitness/gif/classic/classic-11.gif'),

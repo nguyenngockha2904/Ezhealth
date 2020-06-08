@@ -30,13 +30,13 @@ export const welcomeStyles = StyleSheet.create({
         marginBottom: 30,
         borderRadius: 200,
     },
-    textRegister: {
+    textLogin: {
         color: colors.white,
         fontSize: 18,
         fontFamily: 'quicksand-bold',
     
     },
-    register: {
+    login: {
         marginTop: 140,
         paddingVertical: 12,
         paddingHorizontal: 115,
@@ -47,7 +47,7 @@ export const welcomeStyles = StyleSheet.create({
         marginTop: 10,
         fontFamily: 'quicksand-bold',
     },
-    registerModal: {
+    loginModal: {
         
     }
 });

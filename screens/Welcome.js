@@ -26,12 +26,14 @@ export default class Welcome extends Component {
         })
     }
     gotoHome = () => {
-        const navigateAction = NavigationActions.navigate({
-            routeName: 'HomeStack',
-            params: {},
-            action: NavigationActions.navigate({ routeName: 'Home' }),
-        });
-        this.props.navigation.dispatch(navigateAction);
+        if (firebaseApp.auth().currentUser.emailVerified) {
+            const navigateAction = NavigationActions.navigate({
+                routeName: 'HomeStack',
+                params: {},
+                action: NavigationActions.navigate({ routeName: 'Home' }),
+            });
+            this.props.navigation.dispatch(navigateAction);
+        }
     }
 
     toggleRegister = () => {
@@ -73,17 +75,17 @@ export default class Welcome extends Component {
                     <View style={{ flexDirection: 'column', alignItems: 'center', paddingTop: 20 }}>
 
                         {/* Register */}
-                        <TouchableOpacity style={welcomeStyles.register}
-                            onPress={this.toggleRegister}>
-                            <Text style={welcomeStyles.textRegister}>Register</Text>
+                        <TouchableOpacity style={welcomeStyles.login}
+                            onPress={this.loggedCheck}>
+                            <Text style={welcomeStyles.textLogin}>Log In</Text>
                         </TouchableOpacity>
 
                         {/* Have an account? */}
                         <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <Text style={[welcomeStyles.text, { color: colors.black, fontSize: 14, }]}>Have an account?</Text>
+                            <Text style={[welcomeStyles.text, { color: colors.black, fontSize: 14, }]}>Don't have an account?</Text>
                             <TouchableOpacity
-                                onPress={this.loggedCheck}>
-                                <Text style={[welcomeStyles.text, { paddingLeft: 5, fontSize: 16, color: colors.red }]}>Log In</Text>
+                                onPress={this.toggleRegister}>
+                                <Text style={[welcomeStyles.text, { paddingLeft: 5, fontSize: 16, color: colors.red }]}>Register</Text>
                             </TouchableOpacity>
                         </View>
 

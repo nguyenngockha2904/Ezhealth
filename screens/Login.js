@@ -19,7 +19,12 @@ export default class Login extends Component {
 
     gotoHome = () => {
         this.setState({ email: '', password: '', })
-        this.props.navigation.state.params.gotoHome();
+        const navigateAction = NavigationActions.navigate({
+            routeName: 'HomeStack',
+            params: {},
+            action: NavigationActions.navigate({ routeName: 'Home' }),
+        });
+        this.props.navigation.dispatch(navigateAction);
     }
 
     signOut = () => {
@@ -91,7 +96,6 @@ export default class Login extends Component {
                         this.gotoHome();
                     }
                     else {
-                        this.signOut();
                         Alert.alert(
                             'Notification',
                             'Your Email must be verified, check your Email',

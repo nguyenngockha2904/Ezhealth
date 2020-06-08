@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Text, View, StyleSheet, TouchableOpacity, Image, Alert, ImageBackground, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { Text, View, StyleSheet, TouchableOpacity, Image, ImageBackground, Alert, TextInput, TouchableWithoutFeedback, Keyboard } from 'react-native'
 import colors from '../shared/Colors';
 import firebaseApp from '../Fire';
 import 'firebase/firestore';
@@ -8,7 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import Loader from '../shared/Loader';
-
+import infomationsPremium from '../temp/TempInfomationsPremium';
 export default class UserProfile extends Component {
 
     constructor(props) {
@@ -17,11 +17,12 @@ export default class UserProfile extends Component {
         this.state = {
             loading: false,
             user: {},
+            challenges: [],
             infomations: {},
             name: '',
             photoURL: '',
             image: null,
-            cover: require('../assets/backgrounds/colorful-stars.png'),
+            giftcode: '',
         };
     }
 
@@ -79,6 +80,7 @@ export default class UserProfile extends Component {
         firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email)
             .onSnapshot(function (doc) {
                 self.setState({
+                    challenges: doc.data().challenges,
                     infomations: doc.data().infomations,
                     name: firebaseApp.auth().currentUser.displayName,
                     photoURL: firebaseApp.auth().currentUser.photoURL,
@@ -112,6 +114,91 @@ export default class UserProfile extends Component {
         }
     }
 
+    upToPremiumUser = () => {
+        if (this.state.infomations.rank == 'Common User') {
+            const doc = firebaseApp.firestore().collection('giftcode').doc(this.state.giftcode);
+            const docUser = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email);
+            doc.delete().then(function () {
+                console.log("Document successfully deleted!");
+            }).catch(function (error) {
+                console.error("Error removing document: ", error);
+            });
+            docUser.get().then((docSnapshot) => {
+                docUser.set({
+                    challenges: this.state.challenges,
+                    infomations: infomationsPremium
+                });
+            });
+            this.setState({ loading: false });
+            Alert.alert(
+                'Notification',
+                'You are Premium User now.',
+                [
+                    { text: 'OK' },
+                ],
+                { cancelable: false }
+            );
+        }
+        else {
+            this.setState({ loading: false });
+            Alert.alert(
+                'Notification',
+                'You are ' + this.state.infomations.rank +', you can not use this giftcode.',
+                [
+                    { text: 'OK' },
+                ],
+                { cancelable: false }
+            );
+        }
+    }
+
+    checkGiftcode = () => {
+        this.setState({ loading: true });
+        var regex = /^([A-z0-9!@#$%^&*().,<>{}[\]<>?_=+\-|;:\'\"\/])*[^\s]\1*$/;
+        if (this.state.giftcode != '') {
+            if (this.state.giftcode.match(regex)) {
+                const doc = firebaseApp.firestore().collection('giftcode').doc(this.state.giftcode);
+                doc.get().then((doc) => {
+                    if (doc.exists) {
+                        this.upToPremiumUser();
+                    } else {
+                        this.setState({ loading: false });
+                        Alert.alert(
+                            'Notification',
+                            'Giftcode does not exist or has been used.\nPlease try again with another giftcode.',
+                            [
+                                { text: 'OK' },
+                            ],
+                            { cancelable: false }
+                        );
+                    }
+                }).catch(function (error) {
+                    this.setState({ loading: false });
+                    console.log("Error getting document:", error);
+                });
+            } else {
+                this.setState({ loading: false });
+                Alert.alert(
+                    'Notification',
+                    'Giftcode has no spaces.',
+                    [
+                        { text: 'OK' },
+                    ],
+                    { cancelable: false }
+                );
+            }
+        } else {
+            this.setState({ loading: false });
+            Alert.alert(
+                'Notification',
+                'Please enter giftcode.',
+                [
+                    { text: 'OK' },
+                ],
+                { cancelable: false }
+            );
+        }
+    }
 
     render() {
         return (
@@ -124,7 +211,7 @@ export default class UserProfile extends Component {
                     {/* Header */}
                     <View style={styles.header}>
                         <ImageBackground
-                            source={this.state.cover}
+                            source={this.state.infomations.rank != 'Common User' ? require('../assets/backgrounds/colorful-stars.png') : require('../assets/backgrounds/apps/none.png')}
                             style={{
                                 backgroundColor: this.state.infomations.color,
                                 height: 200,
@@ -162,52 +249,48 @@ export default class UserProfile extends Component {
                         borderBottomLeftRadius: 50,
                         borderBottomRightRadius: 50,
                     }}>
-
+                        {/* Rank */}
+                        <View style={[styles.name]}>
+                            <AntDesign name={this.state.infomations.icon} size={20} color={this.state.infomations.rank == 'Premium User' ? 'yellow' : 'black'} />
+                            <Text style={styles.nameText}>{this.state.infomations.rank}</Text>
+                        </View>
 
                         {/* Name */}
                         <View style={styles.name}>
                             <TextInput
                                 style={styles.textInput} defaultValue={firebaseApp.auth().currentUser.displayName}
-                                placeholderTextColor={colors.black}
+                                placeholderTextColor={colors.gray}
                                 placeholder={'Name'}
                                 onChangeText={text => this.setState({ name: text })}
                             />
                         </View>
-                        {/* Rank */}
-                        <View style={[styles.name]}>
-                            <AntDesign name={this.state.infomations.icon} size={18} color="black" />
-                            <Text style={styles.nameText}>{this.state.infomations.rank}</Text>
-                        </View>
+                        {/* Bottom */}
 
-                        <View style={{ flexDirection: 'row', paddingTop: 0 }}>
-                            <TouchableOpacity style={styles.bottom} onPress={() => this.uploadAvatar(this.state.image)} >
-
-                                <Text style={[styles.signUpText]}>Save Changes</Text>
-                                <AntDesign
-                                    size={18}
-                                    name='arrowright'
-                                    style={[styles.iconSignUp, {
-                                        color: colors.white,
-                                        backgroundColor: this.state.infomations.color,
-                                    }]}
-                                />
-                            </TouchableOpacity>
+                        {/* Text Giftcode*/}
+                        <View style={styles.name}>
+                            <TextInput
+                                style={styles.textInput} defaultValue={''}
+                                placeholderTextColor={colors.gray}
+                                placeholder={'Giftcode'}
+                                onChangeText={text => this.setState({ giftcode: text })}
+                            />
                         </View>
+                        {/* Receive Giftcode */}
+                        <TouchableOpacity style={[styles.button, { backgroundColor: this.state.infomations.color, }]} onPress={() => this.checkGiftcode()} >
+                            <Text style={styles.buttonText}>Receive Giftcode</Text>
+                        </TouchableOpacity>
 
-                        <View style={{ flexDirection: 'row', paddingTop: 10 }}>
-                            <TouchableOpacity style={styles.bottom} onPress={this.logOut} >
-                                <Text style={[styles.signUpText]}>Log Out</Text>
-                                <AntDesign
-                                    size={18}
-                                    name='arrowright'
-                                    style={[styles.iconSignUp, {
-                                        color: colors.white,
-                                        backgroundColor: colors.red,
-                                    }]}
-                                />
-                            </TouchableOpacity>
-                        </View>
+                        {/* Save Changes */}
+                        <TouchableOpacity style={[styles.button, { backgroundColor: this.state.infomations.color, }]} onPress={() => this.uploadAvatar(this.state.image)} >
+                            <Text style={styles.buttonText}>Save Changes</Text>
+                        </TouchableOpacity>
+
+                        {/* Log Out */}
+                        <TouchableOpacity style={[styles.button, { backgroundColor: colors.red, }]} onPress={() => this.logOut()} >
+                            <Text style={styles.buttonText}>Log Out</Text>
+                        </TouchableOpacity>
                     </View>
+
                 </View>
             </TouchableWithoutFeedback>
         )
@@ -216,6 +299,21 @@ export default class UserProfile extends Component {
 
 
 const styles = StyleSheet.create({
+    button: {
+        alignSelf: 'center',
+        borderRadius: 10,
+        padding: 5,
+        marginTop: 20,
+        justifyContent: 'center',
+        height: 40,
+        width: '60%',
+    },
+    buttonText: {
+        alignSelf: 'center',
+        fontFamily: 'quicksand-medium',
+        fontSize: 16,
+        color: colors.white,
+    },
     container: {
         width: '100%',
         height: '100%',
@@ -238,7 +336,7 @@ const styles = StyleSheet.create({
     },
     name: {
         paddingBottom: 20,
-        width: '50%',
+        width: '60%',
         alignSelf: 'center',
         justifyContent: 'center',
         flexDirection: 'row',
@@ -246,10 +344,10 @@ const styles = StyleSheet.create({
     },
     nameText: {
         marginLeft: 5,
-        fontFamily: 'quicksand-medium',
+        fontFamily: 'quicksand-bold',
         alignSelf: 'center',
         textAlign: 'center',
-        fontSize: 18,
+        fontSize: 20,
         color: colors.black,
     },
     nameSubText: {
@@ -267,30 +365,5 @@ const styles = StyleSheet.create({
         fontSize: 18,
         color: colors.black,
         fontFamily: 'quicksand-medium',
-    },
-    bottom: {
-        flex: 1,
-        paddingRight: 20,
-        width: '90%',
-        justifyContent: 'flex-end',
-        paddingTop: 5,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    iconSignUp: {
-        padding: 5,
-        borderRadius: 100,
-    },
-    signUpText: {
-        paddingRight: 10,
-        fontSize: 16,
-        fontFamily: 'quicksand-medium',
-        color: colors.black,
-    },
-    iconLogOut: {
-        width: 50,
-        paddingLeft: 10,
-        alignSelf: 'flex-start',
-        marginTop: 10,
     },
 });

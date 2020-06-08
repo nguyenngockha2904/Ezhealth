@@ -1,9 +1,12 @@
+
+
+
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image, Modal } from 'react-native';
-import Colors from '../shared/Colors';
+import colors from '../shared/Colors';
 import SoundsModal from '../components/SoundsModal';
 
-export default class SoundsList extends React.Component {
+export default class SoundsListNights extends React.Component {
     state = {
         item: this.props.item,
         modalVisible: false,
@@ -16,7 +19,7 @@ export default class SoundsList extends React.Component {
 
     render() {
         return (
-            <View style={{ width: '33%', height: 155, padding: 5 }}>
+            <View style={{ height: 170, paddingLeft: 0 }}>
 
                 {/* Modal */}
                 <Modal
@@ -27,17 +30,17 @@ export default class SoundsList extends React.Component {
                 </Modal>
 
                 <TouchableOpacity
-                    style={[styles.listContainer, { backgroundColor: Colors.primary, width: '100%' }]}
+                    style={[styles.listContainer, { backgroundColor: 'transpament' }]}
                     onPress= {this.toggleSoundsModal}
                 >
                     <Image
                         source={this.state.image}
                         style={{
-                            maxWidth: '90%',
-                            maxHeight: '80%',
-                            aspectRatio: 1,
+                            width: 100,
+                            height: 100,
                             opacity: 0.8,
-                            borderRadius: 5,
+                            borderRadius: 200,
+                            marginTop: 15,
                         }}
                     />
                     <Text style={styles.listTitle} numberOfLines={1}>{this.state.item.name}</Text>
@@ -49,33 +52,34 @@ export default class SoundsList extends React.Component {
 
 const styles = StyleSheet.create({
     listContainer: {
-        paddingTop: 10,
-        paddingVertical: 5,
-        paddingHorizontal: 5,
-        borderRadius: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 10,
+        borderRadius: 35,
+        marginHorizontal: 12,
         alignItems: 'center',
-        width: '100%',
-        height: 140,
+        width: 120,
+        height: 150,
     },
     listTitle: {
-        paddingTop: 5,
-        fontSize: 12,
+        paddingTop: 10,
+        fontSize: 14,
         fontFamily: 'quicksand-regular',
-        color: colors.white,
+        color: colors.primary,
         marginBottom: 28,
     },
     count: {
-        fontSize: 12,
+        fontSize: 15,
         fontFamily: 'quicksand-regular',
-        color: colors.white,
+        color: colors.primary,
     },
     subtitle: {
-        fontSize: 12,
+        fontSize: 15,
         fontFamily: 'quicksand-regular',
-        color: colors.white,
+        color: colors.primary,
     },
     bodyContent: {
         flexDirection: 'column',
     },
 
 });
+

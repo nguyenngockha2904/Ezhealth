@@ -2,31 +2,52 @@ import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons'
 import colors from '../shared/Colors';
-
 export default class ActiveList extends React.Component {
+
+    openNavigation = (active) => {
+        if (active.navigation != '')
+            this.props.navigation.navigate(active.navigation);
+        else 
+            this.props.toggleFixModal();
+    }
+    
     render() {
         const active = this.props.active;
-        return (
-            <View style={{ aspectRatio: 1, width: '50%', paddingLeft: 0 }}>
-                {/* Acctive Apps */}
-                <TouchableOpacity
-                    style={[styles.listContainer, { backgroundColor: active.color}]}
-                    onPress={() => this.props.navigation.navigate(active.navigation)}
-                >
-                    <Image
-                        source={{ uri: active.imageBackground }}
-                        style={{ width: '100%', height: '100%', position: 'absolute', borderRadius: 10, opacity:  1}}
-                    />
-                    {/* <FontAwesome5 name={active.icon}
-                        size={40}
-                        color={colors.white}
-                        paddingVertical={20}
-                        style={{ marginBottom: 20, paddingTop:20 }} /> */}
-                    <Text style={styles.listTitle} numberOfLines={1}>{active.name}</Text>
-                </TouchableOpacity>
+        if (this.props.infomations.rank != 'Common User') {
+            return (
+                <View style={{ aspectRatio: 1, width: this.props.percent, paddingLeft: 0 }}>
+                    {/* Acctive Apps */}
+                    <TouchableOpacity
+                        style={[styles.listContainer, { backgroundColor: active.color }]}
+                        onPress={() => this.openNavigation(active)}
+                    >
+                        <Image
+                            source={active.imageBackground}
+                            style={{ width: '100%', height: '100%', position: 'absolute', borderRadius: 10, opacity: 1 }}
+                        />
+                        <Text style={styles.listTitle} numberOfLines={1}>{active.name}</Text>
 
-            </View>
-        )
+                    </TouchableOpacity>
+                </View>
+            );
+        } else {
+            return (
+                <View style={{ aspectRatio: 1, width: this.props.percent, paddingLeft: 0 }}>
+                    {/* Acctive Apps */}
+                    <TouchableOpacity
+                        style={[styles.listContainer, { backgroundColor: active.color, justifyContent: 'center' }]}
+                        onPress={() => this.openNavigation(active)}
+                    >
+                        <FontAwesome5 name={active.icon}
+                            size={40}
+                            color={colors.white}
+                            paddingVertical={20}
+                            style={{ marginBottom: 20, paddingTop: 20 }} />
+                        <Text style={styles.listTitle} numberOfLines={1}>{active.name}</Text>
+                    </TouchableOpacity>
+                </View>
+            )
+        }
     }
 }
 

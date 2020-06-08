@@ -4,6 +4,7 @@ import Food from '../screens/Food';
 import FitnessStack from './FitnessStack';
 import SleepySounds from '../screens/SleepySounds';
 import UserProfile from '../screens/UserProfile';
+import ForAdminitrastor from '../screens/ForAdminitrastor'
 import { createStackNavigator } from 'react-navigation-stack';
 
 const screens = {
@@ -25,6 +26,10 @@ const screens = {
     },
     UserProfile: {
         screen: UserProfile,
+        navigationOptions: { headerShown: false }
+    },
+    ForAdminitrastor: {
+        screen: ForAdminitrastor,
         navigationOptions: { headerShown: false }
     },
 }

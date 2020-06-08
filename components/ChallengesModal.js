@@ -38,7 +38,7 @@ export default class ChallengesModal extends React.Component {
                     <Ionicons
                         name={todo.completed ? 'ios-square' : 'ios-square-outline'}
                         size={24}
-                        color={colors.gray}
+                        color={this.state.color}
                         style={{ width: 32 }}
                     />
                 </TouchableOpacity>

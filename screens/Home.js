@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, Image, TouchableOpacity, FlatList, ScrollView, StyleSheet, Modal, } from 'react-native';
+import { Text, View, Image, TouchableOpacity, FlatList, ScrollView, StyleSheet, Modal, ImageBackground, } from 'react-native';
 import { FontAwesome, AntDesign, SimpleLineIcons } from '@expo/vector-icons'
 import colors from '../shared/Colors';
 import { homeStyles } from '../styles/HomeStyles';
@@ -8,20 +8,22 @@ import ActiveList from '../components/ActiveList';
 import firebaseApp from '../Fire';
 import 'firebase/firestore';
 import Loader from '../shared/Loader';
+import active from '../temp/TempActive';
 
 export default class Home extends React.Component {
-    themeColors = ['#17b2ac', '#ed3c56', '#5495e5', '#f9bb56', '#A3A1F7'];
-    themeColorsLight = ['#d1fffd', '#ffd6df', '#dbe5ff', '#f7e4d5', '#e1e0ff'];
+    themeColors = ['#17b2ac', '#ed3c56', '#5495e5', '#f9bb56', '#A3A1F7', '#2B2E35'];
+    themeColorsLight = ['#d1fffd', '#ffd6df', '#dbe5ff', '#f7e4d5', '#e1e0ff', '#353840'];
     constructor(props) {
         super(props);
         // Don't call this.setState() here!
         this.state = {
+            appRatio: 2,
+            percent: '50%',
             assetsLoaded: false,
             foo: true,
             themeColors: this.themeColors,
             themeColorsLight: this.themeColorsLight,
             counter: 0,
-            active: [],
             challenges: [],
             user: {},
             modalVisible: false,
@@ -54,9 +56,8 @@ export default class Home extends React.Component {
         doc.get().then((docSnapshot) => {
             doc.set({
                 challenges: this.state.challenges,
-                active: this.state.active,
                 infomations: this.state.infomations
-            })
+            });
         });
     };
 
@@ -77,7 +78,6 @@ export default class Home extends React.Component {
         doc.get().then((docSnapshot) => {
             doc.set({
                 challenges: this.state.challenges,
-                active: this.state.active,
                 infomations: this.state.infomations
             })
         });
@@ -88,7 +88,6 @@ export default class Home extends React.Component {
         firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email)
             .onSnapshot(function (doc) {
                 self.setState({
-                    active: doc.data().active,
                     challenges: doc.data().challenges,
                     infomations: doc.data().infomations,
                     assetsLoaded: true
@@ -111,20 +110,30 @@ export default class Home extends React.Component {
         return <ChallengesList challenges={item} updateList={this.updateList} />
     };
 
-    renderActiveList = item => {
-        return <ActiveList active={item} navigation={this.props.navigation} />
+    renderActiveList = (item, percent) => {
+        return <ActiveList active={item} navigation={this.props.navigation} infomations={this.state.infomations} toggleFixModal={this.toggleFixModal} percent={percent} />
     };
 
-    renderColors() {
-        return this.state.themeColors.map((color) => {
-            return (
-                <TouchableOpacity
-                    key={color}
-                    style={[styles.colorSelect, { backgroundColor: color }]}
-                    onPress={() => this.changeThemeColor(color)}
-                />
-            );
-        });
+    renderColors(userColor) {
+        if (this.state.infomations.rank != 'Common User')
+            return this.state.themeColors.map((color) => {
+                if(userColor == color) {
+                    return (
+                        <TouchableOpacity
+                            key={color}
+                            style={[styles.colorSelect, {width: 25, height:25, backgroundColor: color, borderWidth: 2}]}
+                            onPress={() => this.changeThemeColor(color)}
+                        />
+                    );
+                } else
+                return (
+                    <TouchableOpacity
+                        key={color}
+                        style={[styles.colorSelect, { backgroundColor: color, marginTop: 3}]}
+                        onPress={() => this.changeThemeColor(color)}
+                    />
+                );
+            });
     };
 
     openProfileNavigation = () => {
@@ -141,6 +150,10 @@ export default class Home extends React.Component {
             // An error happened.
         });
         this.props.navigation.navigate('Welcome');
+    }
+
+    changeRatioActiveApps = () => {
+
     }
 
     // BackHandler
@@ -195,7 +208,7 @@ export default class Home extends React.Component {
                     {/* Header Container */}
                     <View style={[homeStyles.header, { backgroundColor: this.state.infomations.color }]}>
                         {/* Info user */}
-                        <View style={homeStyles.info}>
+                        <ImageBackground source={this.state.infomations.rank != 'Common User' ? require('../assets/backgrounds/colorful-stars.png') : require('../assets/backgrounds/apps/none.png')} style={homeStyles.info}>
 
                             {/* Avatar */}
                             <View style={{
@@ -221,21 +234,21 @@ export default class Home extends React.Component {
                                 alignItems: 'flex-start',
                                 justifyContent: 'center',
                             }}>
-                                <View style={homeStyles.name}>
+                                <View style={[homeStyles.name]}>
                                     <TouchableOpacity style={homeStyles.name} onPress={this.openProfileNavigation}>
                                         <Text style={homeStyles.nameText}>{this.state.displayName}</Text>
                                         <Text style={homeStyles.nameSubText}>{this.state.infomations.rank}</Text>
                                     </TouchableOpacity>
 
                                     {/* Render icon theme color */}
-                                    <View style={{ alignSelf: 'stretch' }}>
-                                        <View style={styles.renderColor}>{this.renderColors()}</View>
+                                    <View style={{ alignSelf: 'stretch', justifyContent: 'center', paddingTop: 20,}}>
+                                        <View style={styles.renderColor}>{this.renderColors(this.state.infomations.color)}</View>
                                     </View>
                                 </View>
                             </View>
 
                             {/* End tag */}
-                        </View>
+                        </ImageBackground>
                     </View>
 
                     {/* Body */}
@@ -278,26 +291,27 @@ export default class Home extends React.Component {
 
                             <View style={homeStyles.bodyTitle}>
                                 <Text style={homeStyles.titleBodyText}>Active Apps</Text>
-                                <AntDesign
-                                    name='appstore1'
-                                    size={30}
-                                    color={this.state.infomations.color}
-                                    style={homeStyles.star}
-                                />
-
+                                <TouchableOpacity onPress={() => this.changeRatioActiveApps()}>
+                                    <AntDesign
+                                        name='appstore1'
+                                        size={30}
+                                        color={this.state.infomations.color}
+                                        style={homeStyles.star}
+                                    />
+                                </TouchableOpacity>
                             </View>
 
-                            <View style={homeStyles.bodyContent}>
+                            <View style={[homeStyles.bodyContent], { justifyContent: 'center', alignItems: 'center' }}>
                                 <FlatList
                                     flexDirection={'column'}
-                                    numColumns={2}
+                                    numColumns={this.state.appRatio}
                                     horizontal={false}
                                     style={homeStyles.flatlistBoby}
-                                    data={this.state.active}
-                                    contentContainerStyle={{ paddingHorizontal: 0, paddingVertical: 10 }}
+                                    data={active}
+                                    contentContainerStyle={{ paddingLeft: 10, paddingVertical: 10 }}
                                     showsHorizontalScrollIndicator={false}
                                     showsVerticalScrollIndicator={false}
-                                    renderItem={({ item }) => this.renderActiveList(item)}
+                                    renderItem={({ item }) => this.renderActiveList(item, this.state.percent)}
                                     keyExtractor={item => item.id.toString()}
                                 />
                             </View>
@@ -318,8 +332,8 @@ export default class Home extends React.Component {
 
 const styles = StyleSheet.create({
     colorSelect: {
-        width: 23,
-        height: 23,
+        width: 20,
+        height: 20,
         borderRadius: 100,
         borderWidth: 2,
         borderColor: colors.white,
@@ -328,7 +342,6 @@ const styles = StyleSheet.create({
         width: 155,
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingTop: 20,
     }
 });
 
