@@ -14,7 +14,7 @@ export default class StartFit extends Component {
         next: '',
         timerStart: 10,
         timer: 10,
-        titileButton: 'START',
+        titileButton: 'PAUSE',
         i: 0,
     }
     onSpeak =(text) =>{
@@ -23,6 +23,9 @@ export default class StartFit extends Component {
             pitch:1,
             rate:1
         });
+    }
+    componentDidMount () {
+        this.startFit();
     }
     startFit = () => {
         if(this.state.title==='READY TO START'||this.state.title==='REST 10 SECONDS')
@@ -55,17 +58,18 @@ export default class StartFit extends Component {
     }
 
     buttonClick = () => {
-        if (this.state.titileButton === 'START') {
-            this.setState({ titileButton: 'PAUSE' });
-            this.startFit();
-        }
-        else if (this.state.titileButton === 'PAUSE') {
-            this.onSpeak('PAUSE '+this.state.title);
-            this.setState({ titileButton: 'START' });
-            clearInterval(this.interval);
+        if(this.state.title != 'READY TO START') {
+            if (this.state.titileButton === 'START') {
+                this.setState({ titileButton: 'PAUSE' });
+                this.startFit();
+            }
+            else if (this.state.titileButton === 'PAUSE') {
+                this.onSpeak('PAUSE '+this.state.title);
+                this.setState({ titileButton: 'START' });
+                clearInterval(this.interval);
+            }
         }
     }
-
 
     componentDidUpdate() {
         if(this.state.timer === 15){
