@@ -12,7 +12,7 @@ export default class Fitness extends React.Component {
 
     renderFit = item => {
         return (
-            <FitnessList fitness={item} navigation={this.props.navigation} />
+            <FitnessList fitness={item} navigation={this.props.navigation} infomations={this.props.navigation.getParam('infomations', '')} />
         );
     }
 

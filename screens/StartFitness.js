@@ -100,6 +100,7 @@ export default class StartFit extends Component {
                     next: 'NEXT: '+ this.state.todos[this.state.i].title,
                 });
                 this.onSpeak('Rest 10 SECONDS');
+                this.onSpeak('NEXT ROUND IS '+this.state.todos[this.state.i].title);
             }
             else {
                 clearInterval(this.interval);

@@ -1,49 +1,98 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Alert } from 'react-native';
 import { FontAwesome5 } from '@expo/vector-icons'
 import colors from '../shared/Colors';
+import firebaseApp from '../Fire';
+import 'firebase/firestore';
+
 export default class ActiveList extends React.Component {
 
-    openNavigation = (active) => {
-        if (active.navigation != '')
-            this.props.navigation.navigate(active.navigation);
-        else 
-            this.props.toggleFixModal();
+    state = {
+        infomations: this.props.infomations,
+        active: this.props.active
     }
-    
+
+    componentDidMount() {
+        var self = this;
+        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email)
+            .onSnapshot(function (doc) {
+                self.setState({
+                    infomations: doc.data().infomations,
+                })
+            });
+    }
+
+    openNavigation = (active) => {
+        if (!this.state.active.limitedFeature) {
+            if (active.navigation != '')
+                this.props.navigation.navigate(active.navigation, {infomations: this.state.infomations});
+            else
+                this.props.toggleFixModal();
+        } else if (this.state.active.limitedFeature && this.state.infomations.rank != 'Common User') {
+            if (active.navigation != '')
+                this.props.navigation.navigate(active.navigation, {infomations: this.state.infomations});
+            else
+                this.props.toggleFixModal();
+        } else {
+            Alert.alert(
+                'Notification',
+                'This feature is only for Premium User.',
+                [
+                    { text: 'OK' },
+                ],
+                { cancelable: false }
+            );
+        }
+    }
+
     render() {
-        const active = this.props.active;
-        if (this.props.infomations.rank != 'Common User') {
+        if (this.state.infomations.rank != 'Common User') {
             return (
-                <View style={{ aspectRatio: 1, width: this.props.percent, paddingLeft: 0 }}>
+                <View style={{
+                    aspectRatio: 1,
+                    width: this.props.percent,
+                    paddingLeft: 0,
+                    opacity: 1,
+                }}>
                     {/* Acctive Apps */}
                     <TouchableOpacity
-                        style={[styles.listContainer, { backgroundColor: active.color }]}
-                        onPress={() => this.openNavigation(active)}
+                        style={[styles.listContainer, { backgroundColor: this.state.active.color }]}
+                        onPress={() => this.openNavigation(this.state.active)}
                     >
                         <Image
-                            source={active.imageBackground}
-                            style={{ width: '100%', height: '100%', position: 'absolute', borderRadius: 10, opacity: 1 }}
+                            source={this.state.active.imageBackground}
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                position: 'absolute',
+                                borderRadius: 10,
+                                opacity: 1
+                            }}
                         />
-                        <Text style={styles.listTitle} numberOfLines={1}>{active.name}</Text>
+                        <Text style={styles.listTitle} numberOfLines={1}>{this.state.active.name}</Text>
 
                     </TouchableOpacity>
                 </View>
             );
         } else {
             return (
-                <View style={{ aspectRatio: 1, width: this.props.percent, paddingLeft: 0 }}>
+                <View style={{
+                    aspectRatio: 1,
+                    width: this.props.percent,
+                    paddingLeft: 0,
+                    opacity: this.state.infomations.rank == 'Common User' && !this.state.active.limitedFeature ? 1 : 0.5
+                }}>
                     {/* Acctive Apps */}
                     <TouchableOpacity
-                        style={[styles.listContainer, { backgroundColor: active.color, justifyContent: 'center' }]}
-                        onPress={() => this.openNavigation(active)}
+                        style={[styles.listContainer, { backgroundColor: this.state.active.color, justifyContent: 'center' }]}
+                        onPress={() => this.openNavigation(this.state.active)}
                     >
-                        <FontAwesome5 name={active.icon}
+                        <FontAwesome5 name={this.state.active.icon}
                             size={40}
                             color={colors.white}
                             paddingVertical={20}
                             style={{ marginBottom: 20, paddingTop: 20 }} />
-                        <Text style={styles.listTitle} numberOfLines={1}>{active.name}</Text>
+                        <Text style={styles.listTitle} numberOfLines={1}>{this.state.active.name}</Text>
                     </TouchableOpacity>
                 </View>
             )

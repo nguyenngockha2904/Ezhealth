@@ -156,17 +156,6 @@ export default class Home extends React.Component {
 
     }
 
-    // BackHandler
-    // componentDidMount() {
-    //     BackHandler.addEventListener('hardwareBackPress', this.onBackPress);
-    // }
-
-    // componentWillUnmount() {
-    //     BackHandler.removeEventListener('hardwareBackPress', this.onBackPress);
-    // }
-    // onBackPress = () => {
-    // }
-
     render() {
         const { assetsLoaded } = this.state;
         if (assetsLoaded) {
@@ -344,4 +333,3 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
     }
 });
-
