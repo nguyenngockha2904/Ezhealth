@@ -126,7 +126,7 @@ export default class SoundsModal extends Component {
                             <View style={{
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                backgroundColor: 'rgba(0,0,0,0.3)'
+                                backgroundColor: 'rgba(0,0,0,0.3)',
                             }}
                                 width='100%'
                                 height='100%'

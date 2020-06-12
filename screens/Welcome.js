@@ -25,6 +25,11 @@ export default class Welcome extends Component {
             }
         })
     }
+
+    componentWillUnmount () {
+        this._isMounted = false;
+    }
+    
     gotoHome = () => {
         if (firebaseApp.auth().currentUser.emailVerified) {
             const navigateAction = NavigationActions.navigate({

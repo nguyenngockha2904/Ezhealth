@@ -38,10 +38,35 @@ export default challenges = [
     },
     {
         id: 2,
-        name: 'Fitness',
-        icon: 'hotjar',
+        name: 'Charity Miles',
+        icon: 'running',
         color: '#ed3c56',
         colorLight: '#f7ccd5',
+        todos: [
+            {
+                title: 'Khởi động',
+                completed: false
+            },
+            {
+                title: 'Chạy từ từ khoảng 200m rồi mới tăng tốc',
+                completed: false
+            },
+            {
+                title: 'Chạy trung bình trong khoảng 30 phút',
+                completed: false
+            },
+            {
+                title: 'Đi bộ, tập thể dục thả lỏng, thở nhẹ nhàng',
+                completed: false
+            },
+        ]
+    },
+    {
+        id: 3,
+        name: 'Fitness',
+        icon: 'fist-raised',
+        color: '#5495e5',
+        colorLight: '#cdd8f7',
         todos: [
             {
                 title: 'Push Up',
@@ -82,31 +107,6 @@ export default challenges = [
         ]
     },
     {
-        id: 3,
-        name: 'Charity Miles',
-        icon: 'running',
-        color: '#5495e5',
-        colorLight: '#cdd8f7',
-        todos: [
-            {
-                title: 'Khởi động',
-                completed: false
-            },
-            {
-                title: 'Chạy từ từ khoảng 200m rồi mới tăng tốc',
-                completed: false
-            },
-            {
-                title: 'Chạy trung bình trong khoảng 30 phút',
-                completed: false
-            },
-            {
-                title: 'Đi bộ, tập thể dục thả lỏng, thở nhẹ nhàng',
-                completed: false
-            },
-        ]
-    },
-    {
         id: 4,
         name: 'Healthy',
         icon: 'hand-holding-heart',
@@ -137,10 +137,39 @@ export default challenges = [
     },
     {
         id: 5,
-        name: 'Sleepy Care',
-        icon: 'feather-alt',
+        name: 'Focus',
+        icon: 'thumbtack',
         color: '#A3A1F7',
         colorLight: '#D2D1FF',
+        todos: [
+            {
+                title: 'Giảm 10kg',
+                completed: false
+            },
+            {
+                title: 'Cải thiện sức khoẻ',
+                completed: false
+            },
+            {
+                title: 'Tăng cường ngủ đủ giấc',
+                completed: false
+            },
+            {
+                title: 'Hạn chế sử dụng TV, Laptop',
+                completed: false
+            },
+            {
+                title: 'Chạy bộ hàng ngày',
+                completed: false
+            },
+        ]
+    },
+    {
+        id: 6,
+        name: 'Sleepy Care',
+        icon: 'feather-alt',
+        color: '#2B2E35',
+        colorLight: '#bfbfbf',
         todos: [
             {
                 title: 'Chợp mắt 10 – 20 giây',

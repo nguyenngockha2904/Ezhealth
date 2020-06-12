@@ -5,8 +5,8 @@ import colors from '../shared/Colors';
 import firebaseApp from '../Fire';
 import 'firebase/firestore';
 import challenges from '../temp/TempChallenges';
-import infomations from '../temp/TempInfomations';
-
+import settings from '../temp/TempSettings';
+import fitnessCompleted from '../temp/TempFitnessCompleted';
 
 export default class Register extends Component {
     avatars = [
@@ -24,6 +24,7 @@ export default class Register extends Component {
         'https://firebasestorage.googleapis.com/v0/b/ez-health.appspot.com/o/default%2Favatars%2Favatar_11.png?alt=media&token=cb8d8563-3109-4228-bd34-3f5b8059f6de',
         'https://firebasestorage.googleapis.com/v0/b/ez-health.appspot.com/o/default%2Favatars%2Favatar_12.png?alt=media&token=7798190a-6cf8-4ef7-b2f6-6869386b8cbd',
     ]
+    
     rand = Math.floor(Math.random() * (12 - 1 + 1)) + 1;
 
     state = {
@@ -35,15 +36,41 @@ export default class Register extends Component {
     }
 
     checkFirebase = () => {
-        const doc = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email);
-        doc.get().then((docSnapshot) => {
+        const docChallenges = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges');
+
+        const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings'); 
+
+        const docFitness = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness');
+
+        docChallenges.get().then((docSnapshot) => {
             if (docSnapshot.exists) {
                 console.log('Doc existed');
             }
             else {
-                doc.set({
+                docChallenges.set({
                     challenges: challenges,
-                    infomations: infomations,
+                })
+            }
+        });
+
+        docSettings.get().then((docSnapshot) => {
+            if (docSnapshot.exists) {
+                console.log('Doc existed');
+            }
+            else {
+                docSettings.set({
+                    settings: settings,
+                })
+            }
+        });
+
+        docFitness.get().then((docSnapshot) => {
+            if (docSnapshot.exists) {
+                console.log('Doc existed');
+            }
+            else {
+                docFitness.set({
+                    fitnessCompleted: fitnessCompleted,
                 })
             }
         });
@@ -76,7 +103,7 @@ export default class Register extends Component {
     signUp = () => {
         if (this.state.password == this.state.rePassword) {
             firebaseApp.auth()
-                .createUserWithEmailAndPassword(this.state.email, this.state.password)
+                .createUserWithEmailAndPassword(this.state.email.toLowerCase(), this.state.password)
                 .then((userCredentials) => {
                     if (userCredentials.user) {
                         userCredentials.user.updateProfile({
@@ -85,7 +112,7 @@ export default class Register extends Component {
                         }).then(() => {
                             Alert.alert(
                                 'Notification',
-                                'Created a new account with email ' + this.state.email,
+                                'Created a new account with email ' + this.state.email +'.',
                                 [
                                     { text: 'OK', onPress: () => { this.sendEmailVerifycation(), this.checkFirebase(), this.gotoLogIn()} },
                                 ],
@@ -110,7 +137,7 @@ export default class Register extends Component {
         } else {
             Alert.alert(
                 'Notification',
-                'Two passwords do not match, type again!',
+                'Two passwords do not match, type again.',
                 [
                     { text: 'OK' },
                 ],
@@ -178,7 +205,7 @@ export default class Register extends Component {
                             <View style={styles.bottom} >
                                 <Text style={[styles.signUpText]}>Sign Up</Text>
                                 <TouchableOpacity
-                                    onPress={() => { this.signUp() }}
+                                    onPress={() => { this.checkFirebase() }}
                                 >
                                     <AntDesign
                                         size={40}

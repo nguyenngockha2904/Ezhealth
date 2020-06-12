@@ -10,5 +10,4 @@ const firebaseConfig = {
   appId: "1:405548770764:web:b7b1e9b71190ac4a0c6969",
   measurementId: "G-SH60RG8GW0"
 };
-
 export default firebaseApp = firebase.initializeApp(firebaseConfig, 'Ez Health');

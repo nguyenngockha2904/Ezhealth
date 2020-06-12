@@ -5,11 +5,6 @@ import firebaseApp from '../Fire';
 
 export default class ForAdminitrastor extends Component {
 
-    test = () => {
-        const doc = firebaseApp.firestore().collection('giftcode').doc('zY2y7TgCsDvtcovmwhh9');
-
-    }
-
     render() {
         return (
             <View style={styles.container} >

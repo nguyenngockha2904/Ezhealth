@@ -86,10 +86,12 @@ export default class StartFit extends Component {
             if (this.state.title === 'READY TO START') {
                 this.startNewFit();
             } else if (this.state.title === 'REST 10 SECONDS') {
+
                 this.startNewFit();
                 this.setState({
 
                     next: '',
+                    
                 });
             } else if (this.state.i < this.state.count) {
                 this.setState({
@@ -99,14 +101,14 @@ export default class StartFit extends Component {
                     title: 'REST 10 SECONDS',
                     next: 'NEXT: '+ this.state.todos[this.state.i].title,
                 });
-                this.onSpeak('Rest 10 SECONDS');
-                this.onSpeak('NEXT ROUND IS '+this.state.todos[this.state.i].title);
+                this.onSpeak('REST 10 SECONDS');
+                this.onSpeak('NEXT ROUND IS '+ this.state.todos[this.state.i].title);
             }
             else {
                 clearInterval(this.interval);
                 Alert.alert(
                     'Notification',
-                    'You have done all the exercises',
+                    'You have done all the exercises.',
                     [
                         { text: 'OK' },
                     ],

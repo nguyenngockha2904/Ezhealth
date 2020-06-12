@@ -8,7 +8,6 @@ import * as ImagePicker from 'expo-image-picker';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
 import Loader from '../shared/Loader';
-import infomationsPremium from '../temp/TempInfomationsPremium';
 export default class UserProfile extends Component {
 
     constructor(props) {
@@ -18,7 +17,7 @@ export default class UserProfile extends Component {
             loading: false,
             user: {},
             challenges: [],
-            infomations: {},
+            settings: {},
             name: '',
             photoURL: '',
             image: null,
@@ -27,7 +26,6 @@ export default class UserProfile extends Component {
     }
 
     updateUser = () => {
-
         var user = firebaseApp.auth().currentUser;
         user.updateProfile({
             displayName: this.state.name,
@@ -75,20 +73,30 @@ export default class UserProfile extends Component {
             this.updateUser();
     }
     componentDidMount() {
+        // const ref = firebaseApp.storage().ref('users/avatars/nguyensonhai1009@gmail.com/avatar.png');
+        // const url = await ref.getDownloadURL();
+        // console.log(url);
         this.getPermissionAsync();
         var self = this;
-        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email)
+        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges')
             .onSnapshot(function (doc) {
                 self.setState({
                     challenges: doc.data().challenges,
-                    infomations: doc.data().infomations,
-                    name: firebaseApp.auth().currentUser.displayName,
                     photoURL: firebaseApp.auth().currentUser.photoURL,
                     image: firebaseApp.auth().currentUser.photoURL,
+                    name: firebaseApp.auth().currentUser.displayName,
+                })
+            });
+        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings')
+            .onSnapshot(function (doc) {
+                self.setState({
+                    settings: doc.data().settings,
                 })
             });
     }
-
+    componentWillUnmount() {
+        this._isMounted = false;
+    }
     _pickImage = async () => {
         try {
             let result = await ImagePicker.launchImageLibraryAsync({
@@ -99,7 +107,6 @@ export default class UserProfile extends Component {
             });
             if (!result.cancelled) {
                 this.setState({ image: result.uri });
-                this.setPho
             }
         } catch (E) {
         }
@@ -115,18 +122,24 @@ export default class UserProfile extends Component {
     }
 
     upToPremiumUser = () => {
-        if (this.state.infomations.rank == 'Common User') {
-            const doc = firebaseApp.firestore().collection('giftcode').doc(this.state.giftcode);
-            const docUser = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email);
-            doc.delete().then(function () {
+        const premium =
+        {
+            color: '#17b2ac',
+            colorLight: '#d1fffd',
+            icon: 'star',
+            rank: 'Premium User',
+        };
+        if (this.state.settings.rank == 'Common User') {
+            const docGiftcode = firebaseApp.firestore().collection('giftcode').doc(this.state.giftcode);
+            const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings');
+            docGiftcode.delete().then(function () {
                 console.log("Document successfully deleted!");
             }).catch(function (error) {
                 console.error("Error removing document: ", error);
             });
-            docUser.get().then((docSnapshot) => {
-                docUser.set({
-                    challenges: this.state.challenges,
-                    infomations: infomationsPremium
+            docSettings.get().then(() => {
+                docSettings.set({
+                    settings: premium
                 });
             });
             this.setState({ loading: false });
@@ -143,7 +156,7 @@ export default class UserProfile extends Component {
             this.setState({ loading: false });
             Alert.alert(
                 'Notification',
-                'You are ' + this.state.infomations.rank +', you can not use this giftcode.',
+                'You are ' + this.state.settings.rank + ', you can not use this giftcode.',
                 [
                     { text: 'OK' },
                 ],
@@ -203,7 +216,7 @@ export default class UserProfile extends Component {
     render() {
         return (
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={[styles.container, { backgroundColor: this.state.infomations.color }]}>
+                <View style={[styles.container, { backgroundColor: this.state.settings.color }]}>
                     {/* Loader */}
                     <Loader
                         loading={this.state.loading} />
@@ -211,9 +224,9 @@ export default class UserProfile extends Component {
                     {/* Header */}
                     <View style={styles.header}>
                         <ImageBackground
-                            source={this.state.infomations.rank != 'Common User' ? require('../assets/backgrounds/colorful-stars.png') : require('../assets/backgrounds/apps/none.png')}
+                            source={this.state.settings.rank != 'Common User' ? require('../assets/backgrounds/colorful-stars.png') : require('../assets/backgrounds/apps/none.png')}
                             style={{
-                                backgroundColor: this.state.infomations.color,
+                                backgroundColor: this.state.settings.color,
                                 height: 200,
                                 width: '100%',
                                 flex: 1,
@@ -251,8 +264,8 @@ export default class UserProfile extends Component {
                     }}>
                         {/* Rank */}
                         <View style={[styles.name]}>
-                            <AntDesign name={this.state.infomations.icon} size={20} color={this.state.infomations.rank == 'Premium User' ? 'yellow' : 'black'} />
-                            <Text style={styles.nameText}>{this.state.infomations.rank}</Text>
+                            <AntDesign name={this.state.settings.icon} size={20} color={this.state.settings.rank == 'Premium User' ? 'yellow' : 'black'} />
+                            <Text style={styles.nameText}>{this.state.settings.rank}</Text>
                         </View>
 
                         {/* Name */}
@@ -276,12 +289,12 @@ export default class UserProfile extends Component {
                             />
                         </View>
                         {/* Receive Giftcode */}
-                        <TouchableOpacity style={[styles.button, { backgroundColor: this.state.infomations.color, }]} onPress={() => this.checkGiftcode()} >
+                        <TouchableOpacity style={[styles.button, { backgroundColor: this.state.settings.color, }]} onPress={() => this.checkGiftcode()} >
                             <Text style={styles.buttonText}>Receive Giftcode</Text>
                         </TouchableOpacity>
 
                         {/* Save Changes */}
-                        <TouchableOpacity style={[styles.button, { backgroundColor: this.state.infomations.color, }]} onPress={() => this.uploadAvatar(this.state.image)} >
+                        <TouchableOpacity style={[styles.button, { backgroundColor: this.state.settings.color, }]} onPress={() => this.uploadAvatar(this.state.image)} >
                             <Text style={styles.buttonText}>Save Changes</Text>
                         </TouchableOpacity>
 

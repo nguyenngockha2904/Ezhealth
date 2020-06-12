@@ -5,7 +5,7 @@ import sleepy from '../temp/TempSleepySounds';
 import SoundsList from '../components/SoundsList';
 import SoundsListNight from '../components/SoundsListNight';
 import SoundsListDaytime from '../components/SoundsListDaytime';
-import Colors from '../shared/Colors';
+import colors from '../shared/Colors';
 
 const nature = sleepy.filter(item => item.type == 'nature');
 const rain = sleepy.filter(item => item.type == 'rain');
@@ -45,7 +45,7 @@ export default class SleepySounds extends Component {
                     {/* Nights */}
                     <View style={[styles.body, { paddingTop: 0 }]}>
                         <View style={styles.bodyTitle}>
-                            <Text style={[styles.titleBodyText, { color: '#FFFFFF' }]}>Nights</Text>
+                            <Text style={[styles.titleBodyText, { color: colors.white }]}>Nightfall</Text>
                         </View>
 
                         <View style={styles.bodyContent}>
@@ -55,7 +55,7 @@ export default class SleepySounds extends Component {
                                 horizontal={true}
                                 style={[styles.flatlistBoby,
                                 {
-                                    backgroundColor: Colors.white,
+                                    backgroundColor: colors.white,
                                     borderTopLeftRadius: 15,
                                     borderBottomLeftRadius: 15
                                 }]}
@@ -141,6 +141,13 @@ export default class SleepySounds extends Component {
                             />
                         </View>
                     </View>
+
+                    <Image
+                        style={{
+                            width: '100%',
+                            height: 100,
+                        }}
+                        source={require('../assets/backgrounds/bottom.png')} />
                     {/* End tag */}
                 </ScrollView>
             </View>

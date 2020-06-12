@@ -89,7 +89,7 @@ export default class Login extends Component {
 
     signIn = () => {
         firebaseApp.auth()
-            .signInWithEmailAndPassword(this.state.email, this.state.password)
+            .signInWithEmailAndPassword(this.state.email.toLowerCase(), this.state.password)
             .then(() => {
                 {
                     if (firebaseApp.auth().currentUser.emailVerified) {
@@ -217,7 +217,7 @@ export default class Login extends Component {
                                     defaultValue={this.state.email}
                                     placeholderTextColor="white"
                                     placeholder={'Email'}
-                                    onChangeText={text => this.setState({ email: text })}
+                                    onChangeText={text => this.setState({ email: text})}
                                 />
                                 <TextInput style={styles.textInput}
                                     placeholderTextColor="white"

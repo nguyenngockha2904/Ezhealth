@@ -1,9 +1,8 @@
 import React from 'react';
-import { Text, View, Image, TouchableOpacity, FlatList, ScrollView, StyleSheet, Modal, ImageBackground, } from 'react-native';
-import { FontAwesome, AntDesign, SimpleLineIcons } from '@expo/vector-icons'
+import { Text, View, Image, TouchableOpacity, FlatList, ScrollView, StyleSheet, Modal, ImageBackground } from 'react-native';
+import { AntDesign } from '@expo/vector-icons'
 import colors from '../shared/Colors';
 import { homeStyles } from '../styles/HomeStyles';
-import ChallengesList from '../components/ChallengesList';
 import ActiveList from '../components/ActiveList';
 import firebaseApp from '../Fire';
 import 'firebase/firestore';
@@ -12,7 +11,7 @@ import active from '../temp/TempActive';
 
 export default class Home extends React.Component {
     themeColors = ['#17b2ac', '#ed3c56', '#5495e5', '#f9bb56', '#A3A1F7', '#2B2E35'];
-    themeColorsLight = ['#d1fffd', '#ffd6df', '#dbe5ff', '#f7e4d5', '#e1e0ff', '#353840'];
+    themeColorsLight = ['#d1fffd', '#ffd6df', '#dbe5ff', '#f7e4d5', '#e1e0ff', '#bfbfbf'];
     constructor(props) {
         super(props);
         // Don't call this.setState() here!
@@ -28,7 +27,7 @@ export default class Home extends React.Component {
             user: {},
             modalVisible: false,
             modalFix: false,
-            infomations: {},
+            settings: {},
             photoURL: firebaseApp.auth().currentUser.photoURL,
             displayName: firebaseApp.auth().currentUser.displayName,
             loading: true,
@@ -45,18 +44,23 @@ export default class Home extends React.Component {
     toggleFixModal = () => {
         this.setState({ modalFix: !this.state.modalFix });
     }
-
     updateList = list => {
         this.setState({
             challenges: this.state.challenges.map(item => {
                 return item.id === list.id ? list : item;
             })
         });
-        const doc = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email);
-        doc.get().then((docSnapshot) => {
-            doc.set({
+        const docChallenges = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges');
+        const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings');
+
+        docChallenges.get().then(() => {
+            docChallenges.set({
                 challenges: this.state.challenges,
-                infomations: this.state.infomations
+            });
+        });
+        docSettings.get().then(() => {
+            docSettings.set({
+                settings: this.state.settings
             });
         });
     };
@@ -67,72 +71,66 @@ export default class Home extends React.Component {
 
     changeThemeColor = (color) => {
         this.setState({
-            infomations: {
-                rank: this.state.infomations.rank,
+            settings: {
+                rank: this.state.settings.rank,
                 color: color,
                 colorLight: this.state.themeColorsLight[this.getIndex(color)],
-                icon: this.state.infomations.icon,
+                icon: this.state.settings.icon,
             }
         });
-        const doc = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email);
-        doc.get().then((docSnapshot) => {
-            doc.set({
-                challenges: this.state.challenges,
-                infomations: this.state.infomations
+        const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings'); 
+        docSettings.get().then(() => {
+            docSettings.set({
+                settings: this.state.settings
             })
         });
     }
 
     async componentDidMount() {
         var self = this;
-        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email)
+        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges')
             .onSnapshot(function (doc) {
                 self.setState({
                     challenges: doc.data().challenges,
-                    infomations: doc.data().infomations,
-                    assetsLoaded: true
+                })
+            });
+        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings')
+            .onSnapshot(function (doc) {
+                self.setState({
+                    settings: doc.data().settings,
+                    assetsLoaded: true,
                 })
             });
     }
-
-    resetChallenges = () => {
-        challenges = this.state.challenges;
-
-        challenges.forEach(array => {
-            array.todos.map(item => {
-                item.completed = false;
-            })
-        });
-        this.updateList(challenges);
+    componentWillUnmount () {
+        this._isMounted = false;
     }
-
-    renderChallengesList = item => {
-        return <ChallengesList challenges={item} updateList={this.updateList} />
-    };
-
+    
     renderActiveList = (item, percent) => {
-        return <ActiveList active={item} navigation={this.props.navigation} infomations={this.state.infomations} toggleFixModal={this.toggleFixModal} percent={percent} />
+        return <ActiveList active={item} navigation={this.props.navigation}
+            challenges={this.state.challenges}
+            settings={this.state.settings} toggleFixModal={this.toggleFixModal} percent={percent} />
     };
 
     renderColors(userColor) {
-        if (this.state.infomations.rank != 'Common User')
+        if (this.state.settings.rank != 'Common User')
             return this.state.themeColors.map((color) => {
-                if(userColor == color) {
+                if (userColor == color) {
                     return (
                         <TouchableOpacity
                             key={color}
-                            style={[styles.colorSelect, {width: 25, height:25, backgroundColor: color, borderWidth: 2}]}
+                            style={[styles.colorSelect, { width: 25, height: 25, backgroundColor: color, borderWidth: 2 }]}
                             onPress={() => this.changeThemeColor(color)}
                         />
                     );
                 } else
-                return (
-                    <TouchableOpacity
-                        key={color}
-                        style={[styles.colorSelect, { backgroundColor: color, marginTop: 3}]}
-                        onPress={() => this.changeThemeColor(color)}
-                    />
-                );
+                    return (
+                        <TouchableOpacity
+                            key={color}
+                            style={[styles.colorSelect, { backgroundColor: color, marginTop: 3 }]}
+                            onPress={() => this.changeThemeColor(color)}
+                        />
+                    );
             });
     };
 
@@ -146,7 +144,7 @@ export default class Home extends React.Component {
     logOut = () => {
         firebaseApp.auth().signOut().then(function () {
             // Sign-out successful.openNavigation
-        }).catch(function (error) {
+        }).catch(function () {
             // An error happened.
         });
         this.props.navigation.navigate('Welcome');
@@ -195,9 +193,9 @@ export default class Home extends React.Component {
                     </Modal>
 
                     {/* Header Container */}
-                    <View style={[homeStyles.header, { backgroundColor: this.state.infomations.color }]}>
+                    <View style={[homeStyles.header, { backgroundColor: this.state.settings.color }]}>
                         {/* Info user */}
-                        <ImageBackground source={this.state.infomations.rank != 'Common User' ? require('../assets/backgrounds/colorful-stars.png') : require('../assets/backgrounds/apps/none.png')} style={homeStyles.info}>
+                        <ImageBackground source={this.state.settings.rank != 'Common User' ? require('../assets/backgrounds/colorful-stars.png') : require('../assets/backgrounds/apps/none.png')} style={homeStyles.info}>
 
                             {/* Avatar */}
                             <View style={{
@@ -226,12 +224,12 @@ export default class Home extends React.Component {
                                 <View style={[homeStyles.name]}>
                                     <TouchableOpacity style={homeStyles.name} onPress={this.openProfileNavigation}>
                                         <Text style={homeStyles.nameText}>{this.state.displayName}</Text>
-                                        <Text style={homeStyles.nameSubText}>{this.state.infomations.rank}</Text>
+                                        <Text style={homeStyles.nameSubText}>{this.state.settings.rank}</Text>
                                     </TouchableOpacity>
 
                                     {/* Render icon theme color */}
-                                    <View style={{ alignSelf: 'stretch', justifyContent: 'center', paddingTop: 20,}}>
-                                        <View style={styles.renderColor}>{this.renderColors(this.state.infomations.color)}</View>
+                                    <View style={{ alignSelf: 'stretch', justifyContent: 'center', paddingTop: 20, }}>
+                                        <View style={styles.renderColor}>{this.renderColors(this.state.settings.color)}</View>
                                     </View>
                                 </View>
                             </View>
@@ -247,44 +245,16 @@ export default class Home extends React.Component {
                         style={{ width: '100%' }}
                     >
 
-                        {/* Challenges */}
-                        <View style={homeStyles.body}>
-                            <View style={homeStyles.bodyTitle}>
-                                <Text style={homeStyles.titleBodyText}>Challenges</Text>
-                                <TouchableOpacity
-                                    onPress={this.resetChallenges}>
-                                    <SimpleLineIcons
-
-                                        name='reload'
-                                        size={30}
-                                        color={this.state.infomations.color}
-                                        style={homeStyles.star}
-                                    />
-                                </TouchableOpacity>
-                            </View>
-
-                            <View style={homeStyles.bodyContent}>
-                                <FlatList
-                                    data={this.state.challenges}
-                                    keyExtractor={item => item.id.toString()}
-                                    horizontal={false}
-                                    showsHorizontalScrollIndicator={false}
-                                    showsVerticalScrollIndicator={false}
-                                    renderItem={({ item }) => this.renderChallengesList(item)}
-                                />
-                            </View>
-                        </View>
-
                         {/* Active Apps */}
                         <View style={[homeStyles.body, { paddingTop: 15 }]}>
 
                             <View style={homeStyles.bodyTitle}>
-                                <Text style={homeStyles.titleBodyText}>Active Apps</Text>
+                                <Text style={homeStyles.titleBodyText}>Ez Apps</Text>
                                 <TouchableOpacity onPress={() => this.changeRatioActiveApps()}>
                                     <AntDesign
                                         name='appstore1'
                                         size={30}
-                                        color={this.state.infomations.color}
+                                        color={this.state.settings.color}
                                         style={homeStyles.star}
                                     />
                                 </TouchableOpacity>
@@ -306,6 +276,7 @@ export default class Home extends React.Component {
                             </View>
 
                         </View>
+
                     </ScrollView>
                 </View>
             );
@@ -331,5 +302,6 @@ const styles = StyleSheet.create({
         width: 155,
         flexDirection: 'row',
         justifyContent: 'space-between',
-    }
+    },
 });
+

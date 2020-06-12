@@ -8,29 +8,41 @@ import 'firebase/firestore';
 export default class ActiveList extends React.Component {
 
     state = {
-        infomations: this.props.infomations,
-        active: this.props.active
+        settings: this.props.settings,
+        active: this.props.active,
+        challenges: this.props.challenges,
     }
 
     componentDidMount() {
         var self = this;
-        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email)
+        const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings');
+        docSettings
             .onSnapshot(function (doc) {
                 self.setState({
-                    infomations: doc.data().infomations,
+                    settings: doc.data().settings,
+                })
+            });
+        const docChallenges = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges');
+        docChallenges
+            .onSnapshot(function (doc) {
+                self.setState({
+                    challenges: doc.data().challenges,
                 })
             });
     }
-
+    componentWillUnmount () {
+        this._isMounted = false;
+    }
+    
     openNavigation = (active) => {
         if (!this.state.active.limitedFeature) {
             if (active.navigation != '')
-                this.props.navigation.navigate(active.navigation, {infomations: this.state.infomations});
+                this.props.navigation.navigate(active.navigation, { settings: this.state.settings, challenges: this.state.challenges });
             else
                 this.props.toggleFixModal();
-        } else if (this.state.active.limitedFeature && this.state.infomations.rank != 'Common User') {
+        } else if (this.state.active.limitedFeature && this.state.settings.rank != 'Common User') {
             if (active.navigation != '')
-                this.props.navigation.navigate(active.navigation, {infomations: this.state.infomations});
+                this.props.navigation.navigate(active.navigation, { settings: this.state.settings, challenges: this.state.challenges });
             else
                 this.props.toggleFixModal();
         } else {
@@ -46,7 +58,7 @@ export default class ActiveList extends React.Component {
     }
 
     render() {
-        if (this.state.infomations.rank != 'Common User') {
+        if (this.state.settings.rank != 'Common User') {
             return (
                 <View style={{
                     aspectRatio: 1,
@@ -80,7 +92,7 @@ export default class ActiveList extends React.Component {
                     aspectRatio: 1,
                     width: this.props.percent,
                     paddingLeft: 0,
-                    opacity: this.state.infomations.rank == 'Common User' && !this.state.active.limitedFeature ? 1 : 0.5
+                    opacity: this.state.settings.rank == 'Common User' && !this.state.active.limitedFeature ? 1 : 0.5
                 }}>
                     {/* Acctive Apps */}
                     <TouchableOpacity

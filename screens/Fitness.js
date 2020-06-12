@@ -8,6 +8,10 @@ import colors from '../shared/Colors';
 export default class Fitness extends React.Component {
     state = {
         fitness: fitness,
+        completedRound:0,
+        workoutMinutes:0,
+        burnedCalories:0,
+        wunMedals:0,
     };
 
     renderFit = item => {
@@ -48,7 +52,7 @@ export default class Fitness extends React.Component {
                                             />
 
                                         </View>
-                                        <Text style={[styles.infoText, { color: colors.red }]}>73</Text>
+        <Text style={[styles.infoText, { color: colors.red }]}>{this.state.completedRounds}</Text>
                                         <View style={styles.infoChild}>
                                             <Text style={styles.infotextChild}>HEART</Text>
                                             <Text style={styles.infotextChild}>RATE</Text>
@@ -64,7 +68,7 @@ export default class Fitness extends React.Component {
                                             />
 
                                         </View>
-                                        <Text style={[styles.infoText, { color: colors.blue }]}>70</Text>
+                                        <Text style={[styles.infoText, { color: colors.blue }]}>{this.state.workoutMinutes}</Text>
                                         <View style={styles.infoChild}>
                                             <Text style={styles.infotextChild}>WORKOUT</Text>
                                             <Text style={styles.infotextChild}>MINUTES</Text>
@@ -84,7 +88,7 @@ export default class Fitness extends React.Component {
                                             />
 
                                         </View>
-                                        <Text style={[styles.infoText, { color: colors.orange }]}>836</Text>
+                                        <Text style={[styles.infoText, { color: colors.orange }]}>{this.state.burnedCalories}</Text>
                                         <View style={styles.infoChild}>
                                             <Text style={styles.infotextChild}>BURNED</Text>
                                             <Text style={styles.infotextChild}>CALORIES</Text>
@@ -100,7 +104,7 @@ export default class Fitness extends React.Component {
                                             />
 
                                         </View>
-                                        <Text style={[styles.infoText, { color: colors.green }]}>148</Text>
+                                        <Text style={[styles.infoText, { color: colors.green }]}>{this.state.wunMedals}</Text>
                                         <View style={styles.infoChild}>
                                             <Text style={styles.infotextChild}>MEDALS</Text>
                                             <Text style={styles.infotextChild}>WUN</Text>

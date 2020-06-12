@@ -35,7 +35,7 @@ export default class SoundsListDaytime extends React.Component {
                         style={{
                             width: 100,
                             height: 100,
-                            opacity: 0.8,
+                            opacity: 1,
                             borderRadius: 200,
                             marginTop: 15,
                         }}

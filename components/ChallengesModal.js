@@ -7,6 +7,7 @@ export default class ChallengesModal extends React.Component {
     state = {
         newTodo: '',
         color: this.props.list.color,
+        deleteMode: false,
     }
 
     toggleDeleteTodo = (index) => {
@@ -38,11 +39,15 @@ export default class ChallengesModal extends React.Component {
                     <Ionicons
                         name={todo.completed ? 'ios-square' : 'ios-square-outline'}
                         size={24}
-                        color={this.state.color}
+                        color={todo.completed ? colors.gray : colors.black}
                         style={{ width: 32 }}
                     />
                 </TouchableOpacity>
-                <TouchableOpacity style={{ flex: 1 }} onPress={() => this.toggleTodoCompleted(index)}>
+                <TouchableOpacity
+                    style={{ flex: 1 }}
+                    onPress={() => this.toggleTodoCompleted(index)}
+                    onLongPress={() => this.setState({deleteMode: !this.state.deleteMode})}
+                >
                     <Text
                         style={[styles.todo, {
                             textDecorationLine: todo.completed ? 'line-through' : 'none',
@@ -50,7 +55,7 @@ export default class ChallengesModal extends React.Component {
                         }]}
                     >{todo.title}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.toggleDeleteTodo(index)}
+                {this.state.deleteMode ? <TouchableOpacity onPress={() => this.toggleDeleteTodo(index)}
                 >
                     <MaterialIcons
                         style={{
@@ -58,10 +63,9 @@ export default class ChallengesModal extends React.Component {
                         }}
                         size={23}
                         name='delete'
-                        color={colors.gray}
-
+                        color={this.state.color}
                     />
-                </TouchableOpacity>
+                </TouchableOpacity> : null}
             </View>
         )
     }

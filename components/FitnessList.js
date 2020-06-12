@@ -8,23 +8,27 @@ export default class FitnessList extends React.Component {
 
     state = {
         fitness: this.props.fitness,
-        infomations: this.props.navigation.getParam('infomations', ''),
+        settings: this.props.navigation.getParam('settings', ''),
     }
 
     async componentDidMount() {
         var self = this;
-        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email)
-            .onSnapshot(function (doc) {
+        const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings'); 
+        docSettings.onSnapshot(function (doc) {
                 self.setState({
-                    infomations: doc.data().infomations,
+                    settings: doc.data().settings,
                 });
             });
+    }
+    
+    componentWillUnmount () {
+        this._isMounted = false;
     }
     
     openFitnessToggle = () => {
         if(!this.state.fitness.limitedFeature) {
             this.props.navigation.navigate('DetailFitness', this.state.fitness)
-        } else if (this.state.fitness.limitedFeature && this.state.infomations.rank != 'Common User' ) {
+        } else if (this.state.fitness.limitedFeature && this.state.settings.rank != 'Common User' ) {
             this.props.navigation.navigate('DetailFitness', this.state.fitness)
         } else {
             Alert.alert(
@@ -39,7 +43,6 @@ export default class FitnessList extends React.Component {
     }
 
     render() {
-        console.log(this.state.fitness.limitedFeature)
         return (
             <View style={{ height: 400, paddingLeft: 0 }}>
                 {/* fitness Apps */}
@@ -47,7 +50,7 @@ export default class FitnessList extends React.Component {
                 <TouchableOpacity
                     style={[styles.listContainer, { 
                         backgroundColor: this.state.fitness.color,
-                        opacity:((this.state.infomations.rank == 'Common User' && !this.state.fitness.limitedFeature)) || (this.state.infomations.rank != 'Common User') ? 1 : 0.5 }]
+                        opacity:((this.state.settings.rank == 'Common User' && !this.state.fitness.limitedFeature)) || (this.state.settings.rank != 'Common User') ? 1 : 0.5 }]
                     }
                     onPress={() => this.openFitnessToggle()}
                 >
@@ -93,4 +96,4 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
     },
 
-});   
+});

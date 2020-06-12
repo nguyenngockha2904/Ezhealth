@@ -64,13 +64,11 @@ export const homeStyles = StyleSheet.create({
         width: '100%',
         flex: 1,
         justifyContent: 'flex-start',
-        
     },
     bodyTitle: {
         paddingTop: 10,
         paddingLeft: 20,
         flexDirection: 'row',
-
     },
     titleBodyText: {
         color: colors.black,

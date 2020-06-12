@@ -696,7 +696,7 @@ export const fitness = [
         color: '#5495e5',
         image: require('../assets/images/fitness/lead/butt.png'),
         ready: require('../assets/animations/walk.gif'),
-        limitedFeature: true,
+        limitedFeature: false,
         todos: [
             {
                 id: 1,
@@ -976,7 +976,7 @@ export const fitness = [
         color: '#f9bb56',
         image: require('../assets/images/fitness/lead/leg.png'),
         ready: require('../assets/animations/guitar-rock.gif'),
-        limitedFeature: true,
+        limitedFeature: false,
         todos: [
             {
                 id: 1,
@@ -1289,7 +1289,7 @@ export const fitness = [
         color: '#A3A1F7',
         image: require('../assets/images/fitness/lead/arm.png'),
         ready: require('../assets/animations/drive.gif'),
-        limitedFeature: true,
+        limitedFeature: false,
         todos: [
             {
                 id: 1,
