@@ -6,13 +6,15 @@ import { fitness } from '../temp/TempFitness';
 import FitnessList from '../components/FitnessList';
 import colors from '../shared/Colors';
 import records from '../temp/TempRecord';
+import Loader from '../shared/Loader';
 export default class Fitness extends React.Component {
     state = {
+        assetsLoaded: false,
         fitness: fitness,
-        fitnessCompleted:[],
-        records:{}
+        fitnessCompleted: [],
+        records: {}
     };
-    checkFirebase =() =>{
+    checkFirebase = () => {
         const docFitness = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness');
         docFitness.get().then((docSnapshot) => {
             if (docSnapshot.exists) {
@@ -21,23 +23,27 @@ export default class Fitness extends React.Component {
             else {
                 docFitness.set({
                     fitnessCompleted: this.state.fitnessCompleted,
-                    records:this.state.records,
+                    records: this.state.records,
                 })
             }
         });
-        
+
     }
-    async componentDidMount(){
-        
+    async componentDidMount() {
+
         this.checkFirebase();
         var self = this;
-        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness')
+        await firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness')
             .onSnapshot(function (doc) {
                 self.setState({
                     fitnessCompleted: doc.data().fitnessCompleted,
                     records: doc.data().records,
+                    assetsLoaded:true,
                 })
             });
+    }
+    componentWillMount() {
+        this._isMounted = false;
     }
     renderFit = item => {
         return (
@@ -45,122 +51,132 @@ export default class Fitness extends React.Component {
         );
     }
     render() {
-        return (
-            <View style={styles.container}>
-                <ScrollView
-                    showsHorizontalScrollIndicator={false}
-                    showsVerticalScrollIndicator={false}
-                    style={{ width: '100%' }}
-                >
-                    <View style={styles.header}>
-                        <View style={styles.maxim}>
-                            <Text style={[styles.text, { fontSize: 30, paddingTop: 25, letterSpacing: 5, }]}>DAILY FITNESS</Text>
+        const { assetsLoaded } = this.state;
+        if (assetsLoaded) {
+            return (
+                <View style={styles.container}>
+                    <ScrollView
+                        showsHorizontalScrollIndicator={false}
+                        showsVerticalScrollIndicator={false}
+                        style={{ width: '100%' }}
+                    >
+                        <View style={styles.header}>
+                            <View style={styles.maxim}>
+                                <Text style={[styles.text, { fontSize: 30, paddingTop: 25, letterSpacing: 5, }]}>DAILY FITNESS</Text>
+                            </View>
+    
+                            {/* 4 Infomations */}
+                            <View style={{ width: '100%', flexDirection: 'row' }}>
+                                <ScrollView
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                    showsVerticalScrollIndicator={false}
+                                    style={{ width: '100%', }}>
+                                    {/* Left */}
+                                    <View style={{ width: '50%' }}>
+    
+                                        <View style={styles.infoDetail}>
+                                            <View style={styles.infoIcon}>
+                                                <Fontisto
+                                                    name={'heart'}
+                                                    size={20}
+                                                    color={colors.red}
+                                                />
+    
+                                            </View>
+                                            <Text style={[styles.infoText, { color: colors.red }]}>{this.state.records.completedRounds}</Text>
+                                            <View style={styles.infoChild}>
+                                                <Text style={styles.infotextChild}>HEART</Text>
+                                                <Text style={styles.infotextChild}>RATE</Text>
+                                            </View>
+                                        </View>
+    
+                                        <View style={styles.infoDetail}>
+                                            <View style={styles.infoIcon}>
+                                                <MaterialCommunityIcons
+                                                    name={'clock'}
+                                                    size={25}
+                                                    color={colors.blue}
+                                                />
+    
+                                            </View>
+                                            <Text style={[styles.infoText, { color: colors.blue }]}>{this.state.records.workoutMinutes}</Text>
+                                            <View style={styles.infoChild}>
+                                                <Text style={styles.infotextChild}>WORKOUT</Text>
+                                                <Text style={styles.infotextChild}>MINUTES</Text>
+                                            </View>
+                                        </View>
+    
+                                    </View>
+    
+                                    {/* Right */}
+                                    <View style={{ width: '50%' }}>
+                                        <View style={[styles.infoDetail]}>
+                                            <View style={styles.infoIcon}>
+                                                <FontAwesome5
+                                                    name={'fire'}
+                                                    size={20}
+                                                    color={colors.orange}
+                                                />
+    
+                                            </View>
+                                            <Text style={[styles.infoText, { color: colors.orange }]}>{this.state.records.burnedCalories}</Text>
+                                            <View style={styles.infoChild}>
+                                                <Text style={styles.infotextChild}>BURNED</Text>
+                                                <Text style={styles.infotextChild}>CALORIES</Text>
+                                            </View>
+                                        </View>
+    
+                                        <View style={styles.infoDetail}>
+                                            <View style={styles.infoIcon}>
+                                                <FontAwesome5
+                                                    name={'trophy'}
+                                                    size={20}
+                                                    color={colors.green}
+                                                />
+    
+                                            </View>
+                                            <Text style={[styles.infoText, { color: colors.green }]}>{this.state.records.wunMedals}</Text>
+                                            <View style={styles.infoChild}>
+                                                <Text style={styles.infotextChild}>MEDALS</Text>
+                                                <Text style={styles.infotextChild}>WUN</Text>
+                                            </View>
+                                        </View>
+    
+                                    </View>
+                                </ScrollView>
+                            </View>
+    
+    
+                            {/*  */}
                         </View>
-
-                        {/* 4 Infomations */}
-                        <View style={{ width: '100%', flexDirection: 'row' }}>
-                            <ScrollView
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                                showsVerticalScrollIndicator={false}
-                                style={{ width: '100%', }}>
-                                {/* Left */}
-                                <View style={{ width: '50%' }}>
-
-                                    <View style={styles.infoDetail}>
-                                        <View style={styles.infoIcon}>
-                                            <Fontisto
-                                                name={'heart'}
-                                                size={20}
-                                                color={colors.red}
-                                            />
-
-                                        </View>
-                                        <Text style={[styles.infoText, { color: colors.red }]}>{this.state.records.completedRounds}</Text>
-                                        <View style={styles.infoChild}>
-                                            <Text style={styles.infotextChild}>HEART</Text>
-                                            <Text style={styles.infotextChild}>RATE</Text>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.infoDetail}>
-                                        <View style={styles.infoIcon}>
-                                            <MaterialCommunityIcons
-                                                name={'clock'}
-                                                size={25}
-                                                color={colors.blue}
-                                            />
-
-                                        </View>
-                                        <Text style={[styles.infoText, { color: colors.blue }]}>{this.state.records.workoutMinutes}</Text>
-                                        <View style={styles.infoChild}>
-                                            <Text style={styles.infotextChild}>WORKOUT</Text>
-                                            <Text style={styles.infotextChild}>MINUTES</Text>
-                                        </View>
-                                    </View>
-
-                                </View>
-
-                                {/* Right */}
-                                <View style={{ width: '50%' }}>
-                                    <View style={[styles.infoDetail]}>
-                                        <View style={styles.infoIcon}>
-                                            <FontAwesome5
-                                                name={'fire'}
-                                                size={20}
-                                                color={colors.orange}
-                                            />
-
-                                        </View>
-                                        <Text style={[styles.infoText, { color: colors.orange }]}>{this.state.records.burnedCalories}</Text>
-                                        <View style={styles.infoChild}>
-                                            <Text style={styles.infotextChild}>BURNED</Text>
-                                            <Text style={styles.infotextChild}>CALORIES</Text>
-                                        </View>
-                                    </View>
-
-                                    <View style={styles.infoDetail}>
-                                        <View style={styles.infoIcon}>
-                                            <FontAwesome5
-                                                name={'trophy'}
-                                                size={20}
-                                                color={colors.green}
-                                            />
-
-                                        </View>
-                                        <Text style={[styles.infoText, { color: colors.green }]}>{this.state.records.wunMedals}</Text>
-                                        <View style={styles.infoChild}>
-                                            <Text style={styles.infotextChild}>MEDALS</Text>
-                                            <Text style={styles.infotextChild}>WUN</Text>
-                                        </View>
-                                    </View>
-
-                                </View>
-                            </ScrollView>
+                        <View style={styles.body}>
+                            <View style={{ flexDirection: 'column' }}>
+                                <Text style={[styles.text, { fontSize: 22, paddingVertical: 20, textAlign: 'center', color: colors.white, alignSelf: 'center' }]}>POPULAR FITNESS</Text>
+                                <FlatList
+                                    flexDirection={'column'}
+                                    horizontal={true}
+                                    style={homeStyles.flatlistBoby}
+                                    data={this.state.fitness}
+                                    contentContainerStyle={{ paddingHorizontal: 0, paddingVertical: 0 }}
+                                    showsHorizontalScrollIndicator={false}
+                                    showsVerticalScrollIndicator={false}
+                                    renderItem={({ item }) => this.renderFit(item)}
+                                    keyExtractor={item => item.id.toString()}
+                                />
+                            </View>
                         </View>
-
-
-                        {/*  */}
-                    </View>
-                    <View style={styles.body}>
-                        <View style={{ flexDirection: 'column' }}>
-                            <Text style={[styles.text, { fontSize: 22, paddingVertical: 20, textAlign: 'center', color: colors.white, alignSelf: 'center' }]}>POPULAR FITNESS</Text>
-                            <FlatList
-                                flexDirection={'column'}
-                                horizontal={true}
-                                style={homeStyles.flatlistBoby}
-                                data={this.state.fitness}
-                                contentContainerStyle={{ paddingHorizontal: 0, paddingVertical: 0 }}
-                                showsHorizontalScrollIndicator={false}
-                                showsVerticalScrollIndicator={false}
-                                renderItem={({ item }) => this.renderFit(item)}
-                                keyExtractor={item => item.id.toString()}
-                            />
-                        </View>
-                    </View>
-                </ScrollView>
-            </View>
-        )
+                    </ScrollView>
+                </View>
+            )
+         }
+        else {
+            return (
+                <Loader
+                    loading={this.state.loading} />
+            );
+        }
+        
     }
 }
 const styles = StyleSheet.create({

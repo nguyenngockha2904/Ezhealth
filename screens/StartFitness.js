@@ -37,7 +37,11 @@ export default class StartFit extends Component {
         }
         this.interval = setInterval(
             () => {
-                this.setState((prevState) => ({ timer: prevState.timer - 1 }));
+                this.setState((prevState) => ({
+                     timer: prevState.timer - 1 ,
+                secondsWK: prevState.secondsWK + 1 ,
+            }));
+                console.log(this.state.secondsWK);
             },
             1000
         );
@@ -152,6 +156,7 @@ export default class StartFit extends Component {
 
     componentWillUnmount() {
         clearInterval(this.interval);
+        console.log('đã out');
     }
 
     render() {
