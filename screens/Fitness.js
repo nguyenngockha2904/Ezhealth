@@ -5,21 +5,45 @@ import { homeStyles } from '../styles/HomeStyles';
 import { fitness } from '../temp/TempFitness';
 import FitnessList from '../components/FitnessList';
 import colors from '../shared/Colors';
+import records from '../temp/TempRecord';
 export default class Fitness extends React.Component {
     state = {
         fitness: fitness,
-        completedRound:0,
-        workoutMinutes:0,
-        burnedCalories:0,
-        wunMedals:0,
+        fitnessCompleted:[],
+        records:{}
     };
-
+    checkFirebase =() =>{
+        const docFitness = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness');
+        docFitness.get().then((docSnapshot) => {
+            if (docSnapshot.exists) {
+                console.log('Doc existed');
+            }
+            else {
+                docFitness.set({
+                    fitnessCompleted: this.state.fitnessCompleted,
+                    records:this.state.records,
+                })
+            }
+        });
+        
+    }
+    async componentDidMount(){
+        
+        this.checkFirebase();
+        var self = this;
+        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness')
+            .onSnapshot(function (doc) {
+                self.setState({
+                    fitnessCompleted: doc.data().fitnessCompleted,
+                    records: doc.data().records,
+                })
+            });
+    }
     renderFit = item => {
         return (
             <FitnessList fitness={item} navigation={this.props.navigation} infomations={this.props.navigation.getParam('infomations', '')} />
         );
     }
-
     render() {
         return (
             <View style={styles.container}>
@@ -52,7 +76,7 @@ export default class Fitness extends React.Component {
                                             />
 
                                         </View>
-        <Text style={[styles.infoText, { color: colors.red }]}>{this.state.completedRounds}</Text>
+                                        <Text style={[styles.infoText, { color: colors.red }]}>{this.state.records.completedRounds}</Text>
                                         <View style={styles.infoChild}>
                                             <Text style={styles.infotextChild}>HEART</Text>
                                             <Text style={styles.infotextChild}>RATE</Text>
@@ -68,7 +92,7 @@ export default class Fitness extends React.Component {
                                             />
 
                                         </View>
-                                        <Text style={[styles.infoText, { color: colors.blue }]}>{this.state.workoutMinutes}</Text>
+                                        <Text style={[styles.infoText, { color: colors.blue }]}>{this.state.records.workoutMinutes}</Text>
                                         <View style={styles.infoChild}>
                                             <Text style={styles.infotextChild}>WORKOUT</Text>
                                             <Text style={styles.infotextChild}>MINUTES</Text>
@@ -88,7 +112,7 @@ export default class Fitness extends React.Component {
                                             />
 
                                         </View>
-                                        <Text style={[styles.infoText, { color: colors.orange }]}>{this.state.burnedCalories}</Text>
+                                        <Text style={[styles.infoText, { color: colors.orange }]}>{this.state.records.burnedCalories}</Text>
                                         <View style={styles.infoChild}>
                                             <Text style={styles.infotextChild}>BURNED</Text>
                                             <Text style={styles.infotextChild}>CALORIES</Text>
@@ -104,7 +128,7 @@ export default class Fitness extends React.Component {
                                             />
 
                                         </View>
-                                        <Text style={[styles.infoText, { color: colors.green }]}>{this.state.wunMedals}</Text>
+                                        <Text style={[styles.infoText, { color: colors.green }]}>{this.state.records.wunMedals}</Text>
                                         <View style={styles.infoChild}>
                                             <Text style={styles.infotextChild}>MEDALS</Text>
                                             <Text style={styles.infotextChild}>WUN</Text>

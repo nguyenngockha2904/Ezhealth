@@ -7,6 +7,7 @@ import 'firebase/firestore';
 import challenges from '../temp/TempChallenges';
 import settings from '../temp/TempSettings';
 import fitnessCompleted from '../temp/TempFitnessCompleted';
+import records from '../temp/TempRecord';
 
 export default class Register extends Component {
     avatars = [
@@ -24,7 +25,7 @@ export default class Register extends Component {
         'https://firebasestorage.googleapis.com/v0/b/ez-health.appspot.com/o/default%2Favatars%2Favatar_11.png?alt=media&token=cb8d8563-3109-4228-bd34-3f5b8059f6de',
         'https://firebasestorage.googleapis.com/v0/b/ez-health.appspot.com/o/default%2Favatars%2Favatar_12.png?alt=media&token=7798190a-6cf8-4ef7-b2f6-6869386b8cbd',
     ]
-    
+
     rand = Math.floor(Math.random() * (12 - 1 + 1)) + 1;
 
     state = {
@@ -36,22 +37,11 @@ export default class Register extends Component {
     }
 
     checkFirebase = () => {
-        const docChallenges = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges');
-
         const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings'); 
 
-        const docFitness = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness');
+        const docChallenges = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges');
 
-        docChallenges.get().then((docSnapshot) => {
-            if (docSnapshot.exists) {
-                console.log('Doc existed');
-            }
-            else {
-                docChallenges.set({
-                    challenges: challenges,
-                })
-            }
-        });
+        const docFitness = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness');
 
         docSettings.get().then((docSnapshot) => {
             if (docSnapshot.exists) {
@@ -64,13 +54,25 @@ export default class Register extends Component {
             }
         });
 
-        docFitness.get().then((docSnapshot) => {
+        docChallenges.get().then((docSnapshot) => {
             if (docSnapshot.exists) {
+                console.log('Doc existed');
+            }
+            else {
+                docChallenges.set({
+                    challenges: challenges,
+                })
+            }
+        });
+
+        docFitness.get().then((docSnapshot) => {
+            if (!docSnapshot.exists) {
                 console.log('Doc existed');
             }
             else {
                 docFitness.set({
                     fitnessCompleted: fitnessCompleted,
+                    records: records,
                 })
             }
         });
@@ -112,9 +114,9 @@ export default class Register extends Component {
                         }).then(() => {
                             Alert.alert(
                                 'Notification',
-                                'Created a new account with email ' + this.state.email +'.',
+                                'Created a new account with email ' + this.state.email + '.',
                                 [
-                                    { text: 'OK', onPress: () => { this.sendEmailVerifycation(), this.checkFirebase(), this.gotoLogIn()} },
+                                    { text: 'OK', onPress: () => { this.sendEmailVerifycation(), this.checkFirebase(), this.gotoLogIn() } },
                                 ],
                                 { cancelable: false }
                             );
@@ -205,7 +207,7 @@ export default class Register extends Component {
                             <View style={styles.bottom} >
                                 <Text style={[styles.signUpText]}>Sign Up</Text>
                                 <TouchableOpacity
-                                    onPress={() => { this.checkFirebase() }}
+                                    onPress={() => { this.signUp() }}
                                 >
                                     <AntDesign
                                         size={40}

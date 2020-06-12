@@ -16,6 +16,7 @@ export default class StartFit extends Component {
         timer: 10,
         titileButton: 'PAUSE',
         i: 0,
+        secondsWK:0,
     }
     onSpeak =(text) =>{
         Speech.speak(text,{
@@ -91,7 +92,7 @@ export default class StartFit extends Component {
                 this.setState({
 
                     next: '',
-                    
+
                 });
             } else if (this.state.i < this.state.count) {
                 this.setState({
