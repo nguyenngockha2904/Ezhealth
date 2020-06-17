@@ -11,20 +11,6 @@ export default class FitnessList extends React.Component {
         settings: this.props.navigation.getParam('settings', ''),
     }
 
-    async componentDidMount() {
-        var self = this;
-        const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings'); 
-        docSettings.onSnapshot(function (doc) {
-                self.setState({
-                    settings: doc.data().settings,
-                });
-            });
-    }
-    
-    componentWillUnmount () {
-        this._isMounted = false;
-    }
-    
     openFitnessToggle = () => {
         if(!this.state.fitness.limitedFeature) {
             this.props.navigation.navigate('DetailFitness', this.state.fitness)

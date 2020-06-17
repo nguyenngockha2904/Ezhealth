@@ -3,6 +3,7 @@ import { StyleSheet, Alert, Text, View, TextInput, YellowBox, Modal, TouchableWi
 import { AntDesign, Fontisto } from '@expo/vector-icons'
 import colors from '../shared/Colors';
 import firebaseApp from '../Fire';
+import Loader from '../shared/Loader';
 import { NavigationActions } from 'react-navigation';
 
 YellowBox.ignoreWarnings([
@@ -15,6 +16,7 @@ export default class Login extends Component {
         modalVisible: false,
         email: this.props.navigation.getParam('email', ''),
         password: '',
+        loading: false,
     }
 
     gotoHome = () => {
@@ -24,6 +26,7 @@ export default class Login extends Component {
             params: {},
             action: NavigationActions.navigate({ routeName: 'Home' }),
         });
+        this.setState({ loading: true });
         this.props.navigation.dispatch(navigateAction);
     }
 
@@ -59,6 +62,7 @@ export default class Login extends Component {
         auth.sendPasswordResetEmail(emailAddress)
             .then(function () {
                 // Email sent.
+                this.setState({ loading: true });
                 Alert.alert(
                     'Notification',
                     'We have e-mailed your password reset link!',
@@ -70,6 +74,7 @@ export default class Login extends Component {
             }).catch(function (error) {
                 // An error happened.
                 const errorMessage = error.message;
+                this.setState({ loading: true });
                 Alert.alert(
                     'Notification',
                     errorMessage,
@@ -88,14 +93,22 @@ export default class Login extends Component {
     }
 
     signIn = () => {
+        var self = this;
+        this.setState({ loading: true });
+        let email = this.state.email.toLowerCase();
+        if (!email.includes('@'))
+            email += "@gmail.com";
         firebaseApp.auth()
-            .signInWithEmailAndPassword(this.state.email.toLowerCase(), this.state.password)
+            .signInWithEmailAndPassword(email, this.state.password)
             .then(() => {
                 {
                     if (firebaseApp.auth().currentUser.emailVerified) {
                         this.gotoHome();
+                        //const errorCode = error.code;
+                        self.setState({ loading: false });
                     }
-                    else {
+                    else {                //const errorCode = error.code;
+                        self.setState({ loading: false });
                         Alert.alert(
                             'Notification',
                             'Your Email must be verified, check your Email',
@@ -111,6 +124,7 @@ export default class Login extends Component {
             .catch(function (error) {
                 // Handle Errors here.
                 //const errorCode = error.code;
+                self.setState({ loading: false });
                 const errorMessage = error.message;
                 Alert.alert(
                     'Notification',
@@ -127,7 +141,9 @@ export default class Login extends Component {
         return (
 
             <View>
-
+                {/* Loader */}
+                <Loader
+                    loading={this.state.loading} />
                 {/* Modal reset password */}
                 <Modal
                     animationType='slide' visible={this.state.modalVisible}
@@ -216,8 +232,8 @@ export default class Login extends Component {
                                 <TextInput style={styles.textInput}
                                     defaultValue={this.state.email}
                                     placeholderTextColor="white"
-                                    placeholder={'Email'}
-                                    onChangeText={text => this.setState({ email: text})}
+                                    placeholder={'Email or Username'}
+                                    onChangeText={text => this.setState({ email: text })}
                                 />
                                 <TextInput style={styles.textInput}
                                     placeholderTextColor="white"

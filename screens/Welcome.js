@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Text, View, Image, TouchableOpacity } from 'react-native';
+import { Text, View, StatusBar, Image, TouchableOpacity } from 'react-native';
 import colors from '../shared/Colors';
 import { welcomeStyles } from '../styles/WelcomeStyles';
 import firebaseApp from '../Fire';
@@ -11,25 +11,25 @@ export default class Welcome extends Component {
         super(props);
         // Don't call this.setState() here!
         this.state = {
-            assetsLoaded: false,
+            loading: true,
         };
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         firebaseApp.auth().onAuthStateChanged(user => {
             if (user) {
                 this.gotoHome();
-                this.setState({ assetsLoaded: true });
+                this.setState({ loading: false });
             } else {
-                this.setState({ assetsLoaded: true });
+                this.setState({ loading: false });
             }
-        })
+        });
     }
 
-    componentWillUnmount () {
+    componentWillUnmount() {
         this._isMounted = false;
     }
-    
+
     gotoHome = () => {
         if (firebaseApp.auth().currentUser.emailVerified) {
             const navigateAction = NavigationActions.navigate({
@@ -58,8 +58,14 @@ export default class Welcome extends Component {
     render() {
         return (
             <View style={welcomeStyles.container}>
+                {/* Loader */}
+                <StatusBar
+                    translucent
+                    barStyle="light-content"
+                    backgroundColor="transparent"
+                />
                 <Loader
-                    loading={!this.state.assetsLoaded} />
+                    loading={this.state.loading} />
                 <View style={{ flexDirection: 'column', alignItems: 'center' }}>
                     {/* Logo */}
                     <Image style={welcomeStyles.logo}
@@ -99,7 +105,7 @@ export default class Welcome extends Component {
                     {/* End tag */}
                 </View>
             </View>
-        )
+        );
     }
 }
 

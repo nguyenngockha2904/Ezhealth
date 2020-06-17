@@ -78,7 +78,7 @@ export default class ChallengesModal extends React.Component {
             <View style={{ flex: 1, }} >
                 <SafeAreaView style={styles.container}>
                     <TouchableOpacity
-                        style={{ position: 'absolute', top: 24, right: 32, zIndex: 10 }}
+                        style={{ position: 'absolute', top: 15, right: 15, zIndex: 10 }}
                         onPress={this.props.closeModal}
                     >
                         <AntDesign name='close' size={24} color={colors.black} />

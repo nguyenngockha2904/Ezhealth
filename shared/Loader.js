@@ -9,7 +9,6 @@ import {
 const Loader = props => {
   const {
     loading,
-    ...attributes
   } = props;
 
   return (
@@ -17,7 +16,7 @@ const Loader = props => {
       transparent={true}
       animationType={'none'}
       visible={loading}
-      onRequestClose={() => {console.log('close modal')}}>
+      onRequestClose={() => {console.log('Request Close')}}>
       <View style={styles.modalBackground}>
         <View style={styles.activityIndicatorWrapper}>
           <ActivityIndicator
@@ -34,7 +33,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'column',
     justifyContent: 'space-around',
-    backgroundColor: '#00000000'
+    backgroundColor: 'transparent'
   },
   activityIndicatorWrapper: {
     backgroundColor: '#333',

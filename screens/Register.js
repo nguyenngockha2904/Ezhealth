@@ -8,6 +8,7 @@ import challenges from '../temp/TempChallenges';
 import settings from '../temp/TempSettings';
 import fitnessCompleted from '../temp/TempFitnessCompleted';
 import records from '../temp/TempRecord';
+import Loader from '../shared/Loader';
 
 export default class Register extends Component {
     avatars = [
@@ -33,59 +34,145 @@ export default class Register extends Component {
         email: this.props.navigation.getParam('email', ''),
         password: '',
         rePassword: '',
-        photoURL: this.avatars[this.rand]
+        photoURL: this.avatars[this.rand],
+        newPhotoURL: '',
+        loading: false,
     }
 
-    checkFirebase = () => {
-        const docSettings = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings'); 
+    async checkFirebase() {
+        // const email = '@gmail.com';
+        const email = firebaseApp.auth().currentUser.email;
+        await this.uploadAvatar(this.state.photoURL);
+        const docInformations = firebaseApp.firestore().collection('users').doc(email).collection('informations');
 
-        const docChallenges = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges');
+        const docFeatures = firebaseApp.firestore().collection('users').doc(email).collection('features');
 
-        const docFitness = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('fitness');
-
-        docSettings.get().then((docSnapshot) => {
+        const docFollows = firebaseApp.firestore().collection('users').doc(email).collection('follows');
+        const createUser = firebaseApp.firestore().collection('users').doc(email);
+        docInformations.doc('settings').get().then((docSnapshot) => {
             if (docSnapshot.exists) {
                 console.log('Doc existed');
             }
             else {
-                docSettings.set({
+                docInformations.doc('settings').set({
                     settings: settings,
-                })
+                });
             }
         });
 
-        docChallenges.get().then((docSnapshot) => {
+        docInformations.doc('profile').get().then((docSnapshot) => {
             if (docSnapshot.exists) {
                 console.log('Doc existed');
             }
             else {
-                docChallenges.set({
-                    challenges: challenges,
-                })
+                docInformations.doc('profile').set({
+                    profile: {
+                        name: this.state.name,
+                        photoURL: this.state.newPhotoURL,
+                        age: 0,
+                        gender: '',
+                        height: 0,
+                        weight: 0,
+                        r: 0,
+                    }
+                });
             }
         });
 
-        docFitness.get().then((docSnapshot) => {
-            if (!docSnapshot.exists) {
+        docFeatures.doc('challenges').get().then((docSnapshot) => {
+            if (docSnapshot.exists) {
                 console.log('Doc existed');
             }
             else {
-                docFitness.set({
+                docFeatures.doc('challenges').set({
+                    challenges: challenges,
+                });
+            }
+        });
+
+        docFeatures.doc('fitness').get().then((docSnapshot) => {
+            if (docSnapshot.exists) {
+                console.log('Doc existed');
+            }
+            else {
+                docFeatures.doc('fitness').set({
                     fitnessCompleted: fitnessCompleted,
                     records: records,
-                })
+                });
             }
+        });
+
+        docFollows.doc('following').get().then((docSnapshot) => {
+            const following = [];
+            if (docSnapshot.exists) {
+                console.log('Doc existed');
+            }
+            else {
+                docFollows.doc('following').set({
+                    following: following,
+                });
+            }
+        });
+
+        docFollows.doc('followers').get().then((docSnapshot) => {
+            const followers = [];
+            if (docSnapshot.exists) {
+                console.log('Doc existed');
+            }
+            else {
+                docFollows.doc('followers').set({
+                    followers: followers,
+                });
+            }
+        });
+        createUser.get().then(() => {
+            createUser.set({
+                created: true,
+            });
+        });
+        this.setState({ loading: false });
+        Alert.alert(
+            'Notification',
+            'Created a new account with email ' + this.state.email + '.',
+            [
+                { text: 'OK', onPress: () => { this.gotoLogIn(); } },
+            ],
+            { cancelable: false }
+        );
+    }
+
+    uploadAvatar = async uri => {
+        const path = 'users/avatars/' + firebaseApp.auth().currentUser.email + '/avatar.png';
+        return new Promise(async (res, rej) => {
+            const response = await fetch(uri)
+            const file = await response.blob()
+
+            let upload = firebaseApp.storage().ref(path).put(file)
+
+            upload.on(
+                'state_changed',
+                snapshot => { },
+                err => {
+                    rej(err);
+                },
+                async () => {
+                    const url = await upload.snapshot.ref.getDownloadURL();
+                    res(url);
+                    this.setState({ newPhotoURL: url });
+                }
+            );
         });
     }
 
-    sendEmailVerifycation = () => {
+    async sendEmailVerifycation() {
         const user = firebaseApp.auth().currentUser;
 
-        user.sendEmailVerification().then(function () {
+        await user.sendEmailVerification().then(function () {
             // Email sent.
         }).catch(function (error) {
             // An error happened.
         });
+        this.checkFirebase();
     }
 
     signOut = () => {
@@ -99,10 +186,12 @@ export default class Register extends Component {
     gotoLogIn = () => {
         this.props.navigation.replace('Login', {
             email: this.state.email
-        });
+        });;
     }
 
     signUp = () => {
+        this.setState({ loading: true });
+        var self = this;
         if (this.state.password == this.state.rePassword) {
             firebaseApp.auth()
                 .createUserWithEmailAndPassword(this.state.email.toLowerCase(), this.state.password)
@@ -112,14 +201,7 @@ export default class Register extends Component {
                             displayName: this.state.name,
                             photoURL: this.state.photoURL,
                         }).then(() => {
-                            Alert.alert(
-                                'Notification',
-                                'Created a new account with email ' + this.state.email + '.',
-                                [
-                                    { text: 'OK', onPress: () => { this.sendEmailVerifycation(), this.checkFirebase(), this.gotoLogIn() } },
-                                ],
-                                { cancelable: false }
-                            );
+                            this.sendEmailVerifycation();
                         })
                     }
                 })
@@ -127,6 +209,7 @@ export default class Register extends Component {
                     // Handle Errors here.
                     //const errorCode = error.code;
                     const errorMessage = error.message;
+                    self.setState({ loading: false });
                     Alert.alert(
                         'Notification',
                         errorMessage,
@@ -137,6 +220,7 @@ export default class Register extends Component {
                     );
                 });
         } else {
+            self.setState({ loading: false });
             Alert.alert(
                 'Notification',
                 'Two passwords do not match, type again.',
@@ -152,6 +236,9 @@ export default class Register extends Component {
     render() {
         return (
             <View>
+                {/* Loader */}
+                <Loader
+                    loading={this.state.loading} />
                 <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
 
                     {/* Image background */}

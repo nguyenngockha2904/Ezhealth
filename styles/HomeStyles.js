@@ -5,7 +5,7 @@ export const homeStyles = StyleSheet.create({
         flex: 1,
         width:'100%',
         height: '100%',
-        backgroundColor: '#fff',
+        backgroundColor: 'transparent',
         alignItems: 'center',
         justifyContent: 'flex-start',
         backgroundColor: colors.white,
@@ -14,7 +14,7 @@ export const homeStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         width: '100%',
-        height: 195,
+        height: 200,
         borderBottomLeftRadius: 50,
         borderBottomRightRadius: 50,
     },
@@ -29,7 +29,7 @@ export const homeStyles = StyleSheet.create({
     },
     info: {
         flexDirection: 'row',
-        paddingTop: 20,
+        paddingTop: 30,
         justifyContent: 'center',
         alignItems: 'center'
     },

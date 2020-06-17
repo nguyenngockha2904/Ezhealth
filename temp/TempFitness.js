@@ -1,4 +1,4 @@
-export const fitness = [
+export default fitness = [
     {
         id: 1,
         name: 'Classic',

@@ -17,11 +17,12 @@ export default class UserProfile extends Component {
             loading: false,
             user: {},
             challenges: [],
-            settings: {},
+            settings: this.props.navigation.getParam('settings', ''),
             name: '',
             photoURL: '',
             image: null,
             giftcode: '',
+            profile: this.props.navigation.getParam('profile', ''),
         };
     }
 
@@ -34,6 +35,15 @@ export default class UserProfile extends Component {
             // Update successful.
         }).catch(function (error) {
             // An error happened.
+        });
+        const profile = this.state.profile;
+        profile.name = this.state.name;
+        profile.photoURL =  this.state.photoURL;
+        const docProfile = firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('profile');
+        docProfile.get().then(() => {
+            docProfile.set({
+                profile: profile,
+            });
         });
         this.setState({ loading: false });
         this.props.navigation.state.params.onNavigateBack(this.state.photoURL, this.state.name);
@@ -73,26 +83,26 @@ export default class UserProfile extends Component {
             this.updateUser();
     }
     componentDidMount() {
-        // const ref = firebaseApp.storage().ref('users/avatars/nguyensonhai1009@gmail.com/avatar.png');
-        // const url = await ref.getDownloadURL();
-        // console.log(url);
-        this.getPermissionAsync();
         var self = this;
-        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('features').doc('challenges')
-            .onSnapshot(function (doc) {
-                self.setState({
-                    challenges: doc.data().challenges,
-                    photoURL: firebaseApp.auth().currentUser.photoURL,
-                    image: firebaseApp.auth().currentUser.photoURL,
-                    name: firebaseApp.auth().currentUser.displayName,
-                })
-            });
+        this.getPermissionAsync();
+        self.setState({
+            photoURL: firebaseApp.auth().currentUser.photoURL,
+            image: firebaseApp.auth().currentUser.photoURL,
+            name: firebaseApp.auth().currentUser.displayName,
+        });
         firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('settings')
-            .onSnapshot(function (doc) {
-                self.setState({
-                    settings: doc.data().settings,
-                })
+        .onSnapshot(function (doc) {
+            self.setState({
+                settings: doc.data().settings,
             });
+        });
+        firebaseApp.firestore().collection('users').doc(firebaseApp.auth().currentUser.email).collection('informations').doc('profile')
+        .onSnapshot(function (doc) {
+            self.setState({
+                profile: doc.data().profile,
+            });
+        });
+
     }
     componentWillUnmount() {
         this._isMounted = false;
